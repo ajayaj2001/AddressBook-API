@@ -22,7 +22,7 @@ namespace AddressBook.Entities.Dtos
         ///<summary>
         ///address list of user 
         ///</summary>
-        public ICollection<AddressUpatingDto> Addresses { get; set; } = new List<AddressUpatingDto>();
+        public ICollection<AddressUpdatingDto> Addresses { get; set; } = new List<AddressUpdatingDto>();
         
         ///<summary>
         ///email list of user

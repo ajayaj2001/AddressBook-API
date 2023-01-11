@@ -67,7 +67,7 @@ namespace AddressBookUnitTest
             IMapper mapper = mappingConfig.CreateMapper();
             _mapper = mapper;
             _addressBookRepository = new AddressBookRepository(_context);
-            _addressBookServices = new Service(_configuration, _mapper, _addressBookRepository);
+            _addressBookServices = new Service(_configuration, _mapper, _addressBookRepository,_logger);
             _addresBookController = new AddressBookController(_addressBookRepository, _addressBookServices, _logger);
             _metaDataController = new MetadataController(_addressBookServices, _logger);
             _authController = new AuthController(_addressBookRepository, _addressBookServices, _logger);
@@ -216,11 +216,11 @@ namespace AddressBookUnitTest
             {
                 FirstName = "Ram",
                 LastName = "kumar",
-                Addresses = new List<AddressUpatingDto>(),
+                Addresses = new List<AddressUpdatingDto>(),
                 Emails = new List<EmailUpdatingDto>(),
                 Phones = new List<PhoneNumberUpdatingDto>(),
             };
-            user.Addresses.Add(new AddressUpatingDto()
+            user.Addresses.Add(new AddressUpdatingDto()
             {
                 Line1 = "anna nagar",
                 Line2 = "aruppukottai",

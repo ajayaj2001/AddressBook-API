@@ -13,6 +13,8 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using AddressBook.Helper;
 using AddressBook.Contracts;
+using AddressBook.Entities.ResponseTypes;
+using Microsoft.Extensions.Logging;
 
 namespace AddressBook.Services
 {
@@ -21,18 +23,20 @@ namespace AddressBook.Services
         private readonly IConfiguration _config;
         private readonly IMapper _mapper;
         private readonly IAddressBookRepository _userRepository;
+        private readonly ILogger _logger;
 
-        public Service(IConfiguration config, IMapper mapper, IAddressBookRepository UserRepository)
+        public Service(IConfiguration config, IMapper mapper, IAddressBookRepository UserRepository, ILogger logger)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _userRepository = UserRepository ?? throw new ArgumentNullException(nameof(UserRepository));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         ///<summary>
         ///store and update details in asset 
         ///</summary>
-        public FileResultDto StoreImage(Guid userId, IFormFile file,Guid authId)
+        public FileResultDto StoreImage(Guid userId, IFormFile file, Guid authId)
         {
             Guid fileId;
             using (MemoryStream ms = new MemoryStream())
@@ -40,13 +44,13 @@ namespace AddressBook.Services
                 Asset ImageEntity = StoreImageInDb(ms, userId, file, authId);
                 fileId = ImageEntity.Id;
             }
-            return new FileResultDto() { Id = fileId, Size = file.Length, FileName = file.Name};
+            return new FileResultDto() { Id = fileId, Size = file.Length, FileName = file.Name };
         }
 
         ///<summary>
         ///store image in database
         ///</summary>
-        public Asset StoreImageInDb(MemoryStream ms, Guid userId, IFormFile file,Guid authId)
+        public Asset StoreImageInDb(MemoryStream ms, Guid userId, IFormFile file, Guid authId)
         {
             file.CopyTo(ms);
             byte[] fileBytes = ms.ToArray();
@@ -99,7 +103,7 @@ namespace AddressBook.Services
         ///<summary>
         ///create new user in db
         ///</summary>
-        public Guid CreateUser(UserCreatingDto user,Guid authId)
+        public Guid CreateUser(UserCreatingDto user, Guid authId)
         {
             User userResult = _mapper.Map<User>(user);
             userResult.CreatedAt = DateTime.Now.ToString();
@@ -169,7 +173,7 @@ namespace AddressBook.Services
         ///<summary>
         ///update address book details
         ///</summary>
-        public void UpdateAddressBook(Guid userId, UserUpdatingDto userInput, User userFromRepo,Guid authId)
+        public void UpdateAddressBook(Guid userId, UserUpdatingDto userInput, User userFromRepo, Guid authId)
         {
             List<Email> emailCollection = _userRepository.GetEmailIds(userId).ToList();
             List<Phone> phCollection = _userRepository.GetPhoneIds(userId).ToList();
@@ -193,6 +197,182 @@ namespace AddressBook.Services
             _userRepository.UpdateUser(userFromRepo);
             _userRepository.Save();
         }
+
+        public ValidateInputResponse ValidateUserInputCreate(UserCreatingDto user)
+        {
+            //check email & type
+            foreach (EmailCreatingDto item in user.Emails)
+            {
+                if (_userRepository.IsEmailExist(item.EmailAddress))
+                {
+                    _logger.LogError("Email is already exist");
+                    return new ValidateInputResponse() { errorMessage = "Email is already exist", errorCode = 409 };
+                }
+                if (!_userRepository.IsMetadataExist(item.Type))
+                {
+                    _logger.LogError("Email type is not exist");
+                    return new ValidateInputResponse() { errorMessage = "Email type is not exist", errorCode = 404 };
+                }
+            }
+            if (user.Emails.GroupBy(x => x.EmailAddress).Any(g => g.Count() > 1))
+            {
+                _logger.LogError("Dont enter same email multiple time");
+                return new ValidateInputResponse() { errorMessage = "Dont enter same email multiple time", errorCode = 409 };
+            }
+
+            foreach (PhoneNumberCreatingDto item in user.Phones)
+            {
+                if (!_userRepository.IsMetadataExist(item.Type))
+                {
+                    _logger.LogError("Phone number type is not exist");
+                    return new ValidateInputResponse() { errorMessage = "Phone number type is not exist", errorCode = 404 };
+                }
+
+                if (_userRepository.IsPhoneExist(item.PhoneNumber))
+                {
+                    _logger.LogError("Phone number is already exist");
+                    return new ValidateInputResponse() { errorMessage = "phone number is already exist", errorCode = 409 };
+                }
+            }
+            if (user.Phones.GroupBy(x => x.PhoneNumber).Any(g => g.Count() > 1))
+            {
+                _logger.LogError("dont enter same ph number multiple time");
+                return new ValidateInputResponse() { errorMessage = "Dont enter same phone number multiple time", errorCode = 409 };
+            }
+
+            //check address & type
+            foreach (AddressCreatingDto item in user.Addresses)
+            {
+                if (!_userRepository.IsMetadataExist(item.Country))
+                {
+                    _logger.LogError($"Countrytype is not exist{item.Country}");
+                    return new ValidateInputResponse() { errorMessage = "country type is not exist", errorCode = 404 };
+                }
+
+                if (!_userRepository.IsMetadataExist(item.Type))
+                {
+                    _logger.LogError("Addresstype is not exist");
+                    return new ValidateInputResponse() { errorMessage = "Addresstype is not exist", errorCode = 404 };
+                }
+            }
+
+            return new ValidateInputResponse() { errorMessage = "no error", errorCode = 200 };
+        }
+        public ValidateInputResponse ValidateUserInputUpdate(UserUpdatingDto user, Guid id)
+        {
+            foreach (EmailUpdatingDto item in user.Emails)
+            {
+                if (!_userRepository.IsMetadataExist(item.Type))
+                {
+                    _logger.LogError("Email type is not exist");
+                    return new ValidateInputResponse() { errorMessage = "Phone number type is not exist", errorCode = 404 };
+                }
+
+                if (_userRepository.IsEmailExistUpdate(item.EmailAddress, id))
+                {
+                    _logger.LogError("Email is already exist");
+                    return new ValidateInputResponse() { errorMessage = "Email is already exist", errorCode = 409 };
+                }
+            }
+
+            if (user.Emails.GroupBy(x => x.EmailAddress).Any(g => g.Count() > 1))
+            {
+                _logger.LogError("dont enter same email multiple time");
+                return new ValidateInputResponse() { errorMessage = "Email is already exist", errorCode = 409 };
+            }
+
+            foreach (PhoneNumberUpdatingDto item in user.Phones)
+            {
+
+                if (!_userRepository.IsMetadataExist(item.Type))
+                {
+                    _logger.LogError("Phone number type is not exist");
+                    return new ValidateInputResponse() { errorMessage = "Phone number type is not exist", errorCode = 404 };
+
+                }
+
+                if (_userRepository.IsPhoneExistUpdate(item.PhoneNumber, id))
+                {
+                    _logger.LogError("Phone number is already exist");
+                    return new ValidateInputResponse() { errorMessage = "Phone number type is not exist", errorCode = 404 };
+
+                }
+            }
+
+            if (user.Phones.GroupBy(x => x.PhoneNumber).Any(g => g.Count() > 1))
+            {
+                _logger.LogError("dont enter same ph number multiple time");
+                return new ValidateInputResponse() { errorMessage = "Email is already exist", errorCode = 409 };
+            }
+
+            foreach (AddressUpdatingDto item in user.Addresses)
+            {
+                if (!_userRepository.IsMetadataExist(item.Country))
+                {
+                    _logger.LogError($"Countrytype is not exist{item.Country}");
+                    return new ValidateInputResponse() { errorMessage = "country type is not exist", errorCode = 404 };
+                }
+                if (!_userRepository.IsMetadataExist(item.Type))
+                {
+                    _logger.LogError("Addresstype is not exist");
+                    return new ValidateInputResponse() { errorMessage = "address type is not exist", errorCode = 404 };
+                }
+            }
+
+            return new ValidateInputResponse() { errorMessage = "no error", errorCode = 200 };
+        }
+        public UserCreatingDto UpdateUserDetailsForCreate(UserCreatingDto user, Guid authId)
+        {
+            foreach (EmailCreatingDto item in user.Emails)
+            {
+                item.CreatedAt = DateTime.Now.ToString();
+                item.CreatedBy = authId;
+                item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
+            }
+            foreach (PhoneNumberCreatingDto item in user.Phones)
+            {
+                item.CreatedAt = DateTime.Now.ToString();
+                item.CreatedBy = authId;
+                item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
+
+            }
+            foreach (AddressCreatingDto item in user.Addresses)
+            {
+                item.CreatedAt = DateTime.Now.ToString();
+                item.CreatedBy = authId;
+                item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
+                item.Country = (_userRepository.TypeFinder(item.Country)).Id.ToString();
+            }
+            return user;
+
+        }
+
+        public UserUpdatingDto UpdateUserDetailsForUpdate(UserUpdatingDto user, Guid authId)
+        {
+            foreach (EmailUpdatingDto item in user.Emails)
+            {
+                item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
+                item.UpdatedAt = DateTime.Now.ToString();
+                item.UpdatedBy = authId;
+            }
+            foreach (PhoneNumberUpdatingDto item in user.Phones)
+            {
+                item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
+                item.UpdatedAt = DateTime.Now.ToString();
+                item.UpdatedBy = authId;
+
+            }
+            foreach (AddressUpdatingDto item in user.Addresses)
+            {
+                item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
+                item.Country = (_userRepository.TypeFinder(item.Country)).Id.ToString();
+                item.UpdatedAt = DateTime.Now.ToString();
+                item.UpdatedBy = authId;
+            }
+            return user;
+
+        }
+
 
     }
 }

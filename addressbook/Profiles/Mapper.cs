@@ -30,7 +30,7 @@ namespace AddressBook.Profiles
                 dest => dest.Country,
                 opt => opt.MapFrom(src => (Guid.Parse(src.Country)))
             ).ReverseMap();
-            CreateMap<AddressUpatingDto, Address>().ForMember(
+            CreateMap<AddressUpdatingDto, Address>().ForMember(
                 dest => dest.Country,
                 opt => opt.MapFrom(src => (Guid.Parse(src.Country)))
             ).ForMember(

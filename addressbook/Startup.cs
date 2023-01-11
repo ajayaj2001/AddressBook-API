@@ -61,10 +61,12 @@ namespace AddressBook
             var loggerAuth = serviceProvider.GetService<ILogger<AuthController>>();
             var loggerFile = serviceProvider.GetService<ILogger<FileController>>();
             var loggerMetaData = serviceProvider.GetService<ILogger<MetadataController>>();
+            var loggerService = serviceProvider.GetService<ILogger<Service>>();
             services.AddSingleton(typeof(ILogger), loggerAddressBook);
             services.AddSingleton(typeof(ILogger), loggerAuth);
             services.AddSingleton(typeof(ILogger), loggerFile);
             services.AddSingleton(typeof(ILogger), loggerMetaData);
+            services.AddSingleton(typeof(ILogger), loggerService);
 
             services.AddSwaggerGen(c =>
             {

@@ -54,74 +54,20 @@ namespace AddressBook.Controllers
             else //while testing dummy userid
                 authId = Guid.Parse("6ebb437a-03e5-4ebf-83fa-652f548368f2");
 
-            //check email & type
-            foreach (EmailCreatingDto item in user.Emails)
+            ValidateInputResponse validate= _services.ValidateUserInputCreate(user);
+            if (validate.errorCode == 404)
             {
-                if (_userRepository.IsEmailExist(item.EmailAddress))
-                {
-                    _logger.LogError("Email is already exist");
-                    return Conflict("Email is already exist");
-                }
-                if (!_userRepository.IsMetadataExist(item.Type))
-                {
-                    _logger.LogError("Email type is not exist");
-                    return NotFound("Email type is not exist");
-                }
-                item.CreatedAt = DateTime.Now.ToString();
-                item.CreatedBy = authId;
-                item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
-            }
-            if (user.Emails.GroupBy(x => x.EmailAddress).Any(g => g.Count() > 1))
+                return NotFound(validate.errorMessage);
+            }else if(validate.errorCode == 409)
             {
-                _logger.LogError("Dont enter same email multiple time");
-                return Conflict("dont enter same email multiple time");
+                return Conflict(validate.errorMessage);
             }
-            //check phone & type
-            foreach (PhoneNumberCreatingDto item in user.Phones)
+            else
             {
-                if (!_userRepository.IsMetadataExist(item.Type))
-                {
-                    _logger.LogError("Phone number type is not exist");
-                    return NotFound("Phone number type is not exist");
-                }
-
-                if (_userRepository.IsPhoneExist(item.PhoneNumber))
-                {
-                    _logger.LogError("Phone number is already exist");
-                    return Conflict("Phone number is already exist");
-                }
-                item.CreatedAt = DateTime.Now.ToString();
-                item.CreatedBy = authId;
-                item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
-
+                UserCreatingDto updatedUser = _services.UpdateUserDetailsForCreate(user,authId);
+                _logger.LogInformation("new user created successfully");
+                return Ok(_services.CreateUser(updatedUser, authId));
             }
-            if (user.Phones.GroupBy(x => x.PhoneNumber).Any(g => g.Count() > 1))
-            {
-                _logger.LogError("dont enter same ph number multiple time");
-                return Conflict("dont enter same ph number multiple time");
-            }
-
-            //check address & type
-            foreach (AddressCreatingDto item in user.Addresses)
-            {
-                if (!_userRepository.IsMetadataExist(item.Country))
-                {
-                    _logger.LogError($"Countrytype is not exist{item.Country}");
-                    return NotFound($"Countrytype is not exist{item.Country}");
-                }
-
-                if (!_userRepository.IsMetadataExist(item.Type))
-                {
-                    _logger.LogError("Addresstype is not exist");
-                    return NotFound("Addresstype is not exist");
-                }
-                item.CreatedAt = DateTime.Now.ToString();
-                item.CreatedBy = authId;
-                item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
-                item.Country = (_userRepository.TypeFinder(item.Country)).Id.ToString();
-            }
-            _logger.LogInformation("created address book");
-            return Ok(_services.CreateUser(user,authId));
         }
 
         ///<summary> 
@@ -264,63 +210,24 @@ namespace AddressBook.Controllers
                 _logger.LogError("user not found");
                 return NotFound();
             }
-            foreach (EmailUpdatingDto item in user.Emails)
+
+            ValidateInputResponse validate = _services.ValidateUserInputUpdate(user,id);
+            if (validate.errorCode == 404)
             {
-                if (!_userRepository.IsMetadataExist(item.Type))
-                {
-                    _logger.LogError("Email type is not exist");
-                    return NotFound("Email type is not exist");
-                }
-
-                if (_userRepository.IsEmailExistUpdate(item.EmailAddress, id))
-                { _logger.LogError("Email is already exist"); return Conflict("Email is already exist"); }
-
-                item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
-                item.UpdatedAt = DateTime.Now.ToString();
-                item.UpdatedBy = authId;
+                return NotFound(validate.errorMessage);
             }
-
-            if (user.Emails.GroupBy(x => x.EmailAddress).Any(g => g.Count() > 1))
-            { _logger.LogError("dont enter same email multiple time"); return Conflict("dont enter same email multiple time"); }
-
-            foreach (PhoneNumberUpdatingDto item in user.Phones)
+            else if (validate.errorCode == 409)
             {
-
-                if (!_userRepository.IsMetadataExist(item.Type))
-                {
-                    _logger.LogError("Phone number type is not exist");
-                    return NotFound("Phone number type is not exist");
-                }
-
-                if (_userRepository.IsPhoneExistUpdate(item.PhoneNumber, id))
-                { _logger.LogError("Phone number is already exist"); return NotFound("Phone number is already exist"); }
-
-                item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
-                item.UpdatedAt = DateTime.Now.ToString();
-                item.UpdatedBy = authId;
+                return Conflict(validate.errorMessage);
             }
-
-            if (user.Phones.GroupBy(x => x.PhoneNumber).Any(g => g.Count() > 1))
+            else
             {
-                _logger.LogError("dont enter same ph number multiple time");
-                return Conflict("dont enter same ph number multiple time");
+                UserUpdatingDto updatedUser = _services.UpdateUserDetailsForUpdate(user, authId);
+                _services.UpdateAddressBook(id, updatedUser, userFromRepo, authId);
+                _logger.LogInformation("Addresstype updated successfully");
+                return Ok("updated");
             }
-
-            foreach (AddressUpatingDto item in user.Addresses)
-            {
-                if (!_userRepository.IsMetadataExist(item.Country))
-                { _logger.LogError($"Countrytype is not exist{item.Country}"); return NotFound($"Countrytype is not exist{item.Country}"); }
-                if (!_userRepository.IsMetadataExist(item.Type))
-                { _logger.LogError("Addresstype is not exist"); return NotFound("Addresstype is not exist"); }
-
-                item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
-                item.Country = (_userRepository.TypeFinder(item.Country)).Id.ToString();
-                item.UpdatedAt = DateTime.Now.ToString();
-                item.UpdatedBy = authId;
-            }
-            _services.UpdateAddressBook(id, user, userFromRepo,authId);
-            _logger.LogInformation("Addresstype updated successfully");
-            return Ok("updated");
+          
         }
     }
 }
