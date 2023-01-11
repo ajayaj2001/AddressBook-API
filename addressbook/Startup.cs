@@ -7,14 +7,18 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using addressbook.DbContexts;
+using AddressBook.DbContexts;
 using System.Text;
-using addressbook.Services;
+using AddressBook.Services;
 using AutoMapper;
 using System;
 using Newtonsoft.Json.Serialization;
+using AddressBook.Contracts;
+using AddressBook.Repositories;
+using AddressBook.Controllers;
+using Microsoft.Extensions.Logging;
 
-namespace addressbook
+namespace AddressBook
 {
     public class Startup
     {
@@ -51,7 +55,29 @@ namespace addressbook
                  {
                      setupAction.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                  });
-            services.AddScoped<IUserRepositary, UserRepositary>();
+
+            var serviceProvider= services.BuildServiceProvider();
+            var loggerAddressBook = serviceProvider.GetService<ILogger<AddressBookController>>();
+            var loggerAuth = serviceProvider.GetService<ILogger<AuthController>>();
+            var loggerFile = serviceProvider.GetService<ILogger<FileController>>();
+            var loggerMetaData = serviceProvider.GetService<ILogger<MetadataController>>();
+            services.AddSingleton(typeof(ILogger), loggerAddressBook);
+            services.AddSingleton(typeof(ILogger), loggerAuth);
+            services.AddSingleton(typeof(ILogger), loggerFile);
+            services.AddSingleton(typeof(ILogger), loggerMetaData);
+
+            services.AddSwaggerGen(c =>
+            {
+                c.EnableAnnotations();
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "AddressBook Api",
+                    Version = "v1"
+                });
+            });
+
+            services.AddScoped<IAddressBookRepository, AddressBookRepository>();
+            services.AddScoped<IService, Service>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -60,7 +86,7 @@ namespace addressbook
                 c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
             });
 
-            services.AddDbContext<UserContext>(options =>
+            services.AddDbContext<AddressBookContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
@@ -90,6 +116,13 @@ namespace addressbook
             app.UseRouting();
 
             app.UseStaticFiles();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "AddressBook Api");
+            });
 
             app.UseAuthorization();
 

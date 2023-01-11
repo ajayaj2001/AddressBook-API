@@ -1,106 +1,95 @@
-﻿using addressbook.Entities;
-using addressbook.Models;
-using addressbook.Services;
-using AutoMapper;
+﻿using AddressBook.Entities.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using AddressBook.Entities.ResponseTypes;
+using Swashbuckle.AspNetCore.Annotations;
+using AddressBook.Entities.Dtos;
+using AddressBook.Contracts;
+using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
-namespace addressbook.Controllers
+namespace AddressBook.Controllers
 {
 
     [ApiController]
     [Route("api/asset")]
     public class FileController : ControllerBase
     {
+        private readonly IAddressBookRepository _userRepository;
+        private readonly IService _services;
+        private readonly ILogger _logger;
 
-        private readonly IUserRepositary _userRepositary;
-        private readonly IMapper _mapper;
-
-        public FileController(IUserRepositary UserRepositary, IMapper mapper)
+        public FileController(IAddressBookRepository UserRepositary, IService services, ILogger logger)
         {
-            _userRepositary = UserRepositary ?? throw new ArgumentNullException(nameof(UserRepositary));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _userRepository = UserRepositary ?? throw new ArgumentNullException(nameof(UserRepositary));
+            _services = services ?? throw new ArgumentNullException(nameof(services));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        ///<summary> 
+        ///Upload User Image
+        ///</summary>
+        ///<remarks>To upload the user image in db and return image details</remarks> 
+        ///<param name="user-Id"></param> 
+        ///<param name="file"></param> 
+        ///<response code = "200" >Uploaded image details returned successfully</response> 
+        ///<response code = "401" >Not an authorized user</response> 
+        ///<response code="500">Internel server error</response>
         [Authorize]
         [HttpPost("upload-file")]
+        [SwaggerOperation(Summary = "Image Upload", Description = "To upload the user image in db and return image details")]
+        [SwaggerResponse(200, "Success", typeof(FileResultDto))]
+        [SwaggerResponse(401, "Unauthorized", typeof(ErrorResponse))]
+        [SwaggerResponse(500, "Internal server error", typeof(ErrorResponse))]
 
-        public async Task<ActionResult> UploadImage([FromQuery] Guid userId, [FromForm] IFormFile file)
+        public ActionResult UploadImage([FromQuery(Name = "user-Id")] Guid userId, [FromForm] IFormFile file)
         {
-            Guid fileId ;
+            Guid authId;
+            if (String.IsNullOrEmpty(ClaimTypes.NameIdentifier))
+             authId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)); 
+            else //while testing dummy userid
+                authId = Guid.Parse("6ebb437a-03e5-4ebf-83fa-652f548368f2");
 
             if (file.Length < 0)
-            {
-                return BadRequest();
-            }
+            { _logger.LogError("file empty"); return BadRequest("file empty"); }
 
-            await using (var ms = new MemoryStream())
-            {
-                file.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-
-                FileCreatingDto imageCreateDto = new FileCreatingDto();
-
-                imageCreateDto.File = Convert.ToBase64String(fileBytes);
-
-                imageCreateDto.UserId = userId;
-
-                var ImageEntity = _mapper.Map<ImageFile>(imageCreateDto);
-
-                _userRepositary.UploadImage(ImageEntity);
-                _userRepositary.Save();
-               
-
-                //get image id and store in asset db
-                AssetDtoCreating assetDtoCreating = new AssetDtoCreating();
-                assetDtoCreating.FieldId = _userRepositary.GetImageIdByUserId(userId);
-
-                assetDtoCreating.UserId = userId;
-
-                var AssetFromRepo = _userRepositary.GetAssetById(userId);
-                if (AssetFromRepo != null)
-                {
-                    _mapper.Map(AssetFromRepo, assetDtoCreating);
-                    _userRepositary.UpdateAsset(AssetFromRepo);
-                    _userRepositary.Save();
-                }
-                else
-                {
-                    var Asset = _mapper.Map<AssetDto>(assetDtoCreating);
-                    _userRepositary.AddAsset(Asset);
-                    _userRepositary.Save();
-                }
-
-                fileId = ImageEntity.FileId;
-            }
-            return Ok(new FileResultDto() {Id=fileId ,File_type = file.ContentType, Size = file.Length, File_name = file.Name, File_content = file.ContentDisposition });
+            FileResultDto result = _services.StoreImage(userId, file,authId);
+            _logger.LogInformation("file uploaded successfully");
+            return Ok(result);
         }
 
+        ///<summary> 
+        ///Download User Image
+        ///</summary>
+        ///<remarks>Download the user image by image id</remarks> 
+        ///<param name="asset-Id"></param> 
+        ///<response code = "200" >To downloaded the image successfully</response> 
+        ///<response code = "401" >Not an authorized user</response> 
+        ///<response code = "404" >image not found</response> 
+        ///<response code="500">Internel server error</response>
         [Authorize]
-        [HttpGet("{assetId}")]
-        public IActionResult DownloadImage(string assetId)
+        [HttpGet("{asset-Id}")]
+        [SwaggerOperation(Summary = "Download User Image", Description = "To download the user image by image id")]
+        [SwaggerResponse(200, "Success", typeof(byte[]))]
+        [SwaggerResponse(401, "Unauthorized", typeof(ErrorResponse))]
+        [SwaggerResponse(404, "Not Found", typeof(ErrorResponse))]
+        [SwaggerResponse(500, "Internal server error", typeof(ErrorResponse))]
+        public IActionResult DownloadImage([FromQuery(Name = "asset-Id")] Guid assetId)
         {
+            
 
-            if (!Guid.TryParse(assetId, out Guid guid))
-                return BadRequest("enter valid id");
-
-            var Image64 = _userRepositary.RetriveImage(Guid.Parse(assetId));
-
+            Asset Image64 = _userRepository.RetriveImage(assetId);
             if (Image64 == null)
-            {
-                return NotFound();
-            }
+            { _logger.LogError("image not found"); return NotFound(); }
 
-            var outputStream = new MemoryStream(Convert.FromBase64String(Image64.File));
-
+            MemoryStream outputStream = new MemoryStream(Convert.FromBase64String(Image64.File));
             byte[] bytesInStream = outputStream.ToArray();
-
+            _logger.LogInformation("image downloaded successfully");
             return File(bytesInStream, "APPLICATION/octnet-stream");
-
         }
     }
 }

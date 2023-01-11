@@ -1,12 +1,15 @@
-﻿using addressbook.Entities;
-using addressbook.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Data;
+using AddressBook.Entities.Models;
+using AddressBook.Entities.Dtos;
 
-namespace addressbook.Helper
+namespace AddressBook.Helper
 {
+    ///<summary>
+    ///pagination used for applying filters
+    ///</summary>
     public class PaginationHandler<T> : List<User>
     {
         public PageSortParam Param { get; }
@@ -43,12 +46,12 @@ namespace addressbook.Helper
             {
                 if (Param.SortOrder == SortDirection.ASC)
                 {
-                    query = query.OrderBy(e => Param.SortBy.Equals("firstName")?e.First_name:e.Last_name).ToList();
+                    query = query.OrderBy(e => Param.SortBy.Equals("firstName")?e.FirstName:e.LastName).ToList();
 
                 }
                 else
                 {
-                    query = query.OrderByDescending(e => Param.SortBy.Equals("firstName") ? e.First_name : e.Last_name).ToList();
+                    query = query.OrderByDescending(e => Param.SortBy.Equals("firstName") ? e.FirstName : e.LastName).ToList();
                 }
             }
 

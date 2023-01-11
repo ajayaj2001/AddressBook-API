@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using addressbook.DbContexts;
+using AddressBook.DbContexts;
 
 namespace AddressBook.Migrations
 {
-    [DbContext(typeof(UserContext))]
+    [DbContext(typeof(AddressBookContext))]
     [Migration("20230102071445_reftype")]
     partial class reftype
     {
