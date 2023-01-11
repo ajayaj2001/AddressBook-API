@@ -57,11 +57,11 @@ namespace AddressBook
                  });
 
             var serviceProvider= services.BuildServiceProvider();
-            var loggerAddressBook = serviceProvider.GetService<ILogger<AddressBookController>>();
+            var loggerAddressBook = serviceProvider.GetService<ILogger<UserController>>();
             var loggerAuth = serviceProvider.GetService<ILogger<AuthController>>();
             var loggerFile = serviceProvider.GetService<ILogger<FileController>>();
             var loggerMetaData = serviceProvider.GetService<ILogger<MetadataController>>();
-            var loggerService = serviceProvider.GetService<ILogger<Service>>();
+            var loggerService = serviceProvider.GetService<ILogger<UserService>>();
             services.AddSingleton(typeof(ILogger), loggerAddressBook);
             services.AddSingleton(typeof(ILogger), loggerAuth);
             services.AddSingleton(typeof(ILogger), loggerFile);
@@ -78,8 +78,14 @@ namespace AddressBook
                 });
             });
 
-            services.AddScoped<IAddressBookRepository, AddressBookRepository>();
-            services.AddScoped<IService, Service>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IFileRepository, FileRepository>();
+            services.AddScoped<IAuthRepository,AuthRepository>();
+            services.AddScoped<IMetaDataRepository, MetaDataRepository>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IAuthService,AuthService>();
+            services.AddScoped<IMetaDataService, MetaDataService>();
+            services.AddScoped<IFileService, FileService>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace AddressBook.Contracts
+namespace AddressBook.Repositories
 {
-    public interface IAddressBookRepository
+    public interface IUserRepository
     {
         RefSet TypeFinder(string type);
 
@@ -32,25 +32,13 @@ namespace AddressBook.Contracts
 
         IEnumerable<User> GetAllUsers();
 
-        void UploadImage(Asset uploadImage);
-
         bool IsUserExits(Guid userId);
-
-        User GetUserByUserName(string email);
-
-        Asset RetriveImage(Guid id);
 
         IEnumerable<Email> GetEmailIds(Guid id);
 
         IEnumerable<Address> GetAddressIds(Guid id);
 
         IEnumerable<Phone> GetPhoneIds(Guid id);
-
-        IEnumerable<RefSet> GetRefSet(IEnumerable<Guid> items);
-
-        IEnumerable<Guid> GetRefSetGroup(Guid id);
-
-        RefTerm GetRefTerm(string name);
 
         public Asset GetAssetById(Guid id);
 

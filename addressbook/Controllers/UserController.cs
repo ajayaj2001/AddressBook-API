@@ -10,21 +10,22 @@ using Swashbuckle.AspNetCore.Annotations;
 using AddressBook.Contracts;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using AddressBook.Repositories;
 
 namespace AddressBook.Controllers
 {
     [ApiController]
     [Route("api/")]
-    public class AddressBookController : ControllerBase
+    public class UserController : ControllerBase
     {
-        private readonly IAddressBookRepository _userRepository;
-        private readonly IService _services;
+        private readonly IUserRepository _userRepository;
+        private readonly IUserService _userServices;
         private readonly ILogger _logger;
 
-        public AddressBookController(IAddressBookRepository UserRepositary, IService services, ILogger logger)
+        public UserController(IUserRepository UserRepositary, IUserService userServices, ILogger logger)
         {
             _userRepository = UserRepositary ?? throw new ArgumentNullException(nameof(UserRepositary));
-            _services = services ?? throw new ArgumentNullException(nameof(services));
+            _userServices = userServices ?? throw new ArgumentNullException(nameof(userServices));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -54,7 +55,7 @@ namespace AddressBook.Controllers
             else //while testing dummy userid
                 authId = Guid.Parse("6ebb437a-03e5-4ebf-83fa-652f548368f2");
 
-            ValidateInputResponse validate= _services.ValidateUserInputCreate(user);
+            ValidateInputResponse validate= _userServices.ValidateUserInputCreate(user);
             if (validate.errorCode == 404)
             {
                 return NotFound(validate.errorMessage);
@@ -64,9 +65,9 @@ namespace AddressBook.Controllers
             }
             else
             {
-                UserCreatingDto updatedUser = _services.UpdateUserDetailsForCreate(user,authId);
+                UserCreatingDto updatedUser = _userServices.UpdateUserDetailsForCreate(user,authId);
                 _logger.LogInformation("new user created successfully");
-                return Ok(_services.CreateUser(updatedUser, authId));
+                return Ok(_userServices.CreateUser(updatedUser, authId));
             }
         }
 
@@ -88,14 +89,14 @@ namespace AddressBook.Controllers
         [SwaggerResponse(500, "Internal server error", typeof(ErrorResponse))]
         public IActionResult GetAllAddressBook([FromQuery] PageSortParam pageSortParam)
         {
-            List<User> users = _services.GetAllAddressBook(pageSortParam);
+            List<User> users = _userServices.GetAllAddressBook(pageSortParam);
             if (users == null)
             {
                 _logger.LogError("User Not Found");
                 return new NotFoundResult();
             }
             _logger.LogInformation("returned all address book");
-            return Ok(_services.UpdateAddressBookDetail(users));
+            return Ok(_userServices.UpdateAddressBookDetail(users));
         }
 
 
@@ -145,7 +146,7 @@ namespace AddressBook.Controllers
                 return NotFound();
             }
             _logger.LogInformation("returned individual address book ");
-            return Ok(_services.UpdateSingleAddressBookDetail(foundUser));
+            return Ok(_userServices.UpdateSingleAddressBookDetail(foundUser));
         }
 
         ///<summary> 
@@ -172,7 +173,7 @@ namespace AddressBook.Controllers
                 _logger.LogError("user not found");
                 return NotFound();
             }
-            _services.DeleteAddressBook(userFromRepo);
+            _userServices.DeleteAddressBook(userFromRepo);
             _logger.LogInformation("Address book deleted successfully");
             return Ok("Address book deleted successfully");
         }
@@ -211,7 +212,7 @@ namespace AddressBook.Controllers
                 return NotFound();
             }
 
-            ValidateInputResponse validate = _services.ValidateUserInputUpdate(user,id);
+            ValidateInputResponse validate = _userServices.ValidateUserInputUpdate(user,id);
             if (validate.errorCode == 404)
             {
                 return NotFound(validate.errorMessage);
@@ -222,8 +223,8 @@ namespace AddressBook.Controllers
             }
             else
             {
-                UserUpdatingDto updatedUser = _services.UpdateUserDetailsForUpdate(user, authId);
-                _services.UpdateAddressBook(id, updatedUser, userFromRepo, authId);
+                UserUpdatingDto updatedUser = _userServices.UpdateUserDetailsForUpdate(user, authId);
+                _userServices.UpdateAddressBook(id, updatedUser, userFromRepo, authId);
                 _logger.LogInformation("Addresstype updated successfully");
                 return Ok("updated");
             }

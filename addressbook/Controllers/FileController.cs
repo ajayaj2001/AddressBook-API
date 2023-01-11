@@ -11,6 +11,7 @@ using AddressBook.Entities.Dtos;
 using AddressBook.Contracts;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using AddressBook.Repositories;
 
 namespace AddressBook.Controllers
 {
@@ -19,14 +20,14 @@ namespace AddressBook.Controllers
     [Route("api/asset")]
     public class FileController : ControllerBase
     {
-        private readonly IAddressBookRepository _userRepository;
-        private readonly IService _services;
+        private readonly IFileRepository _fileRepository;
+        private readonly IFileService _fileServices;
         private readonly ILogger _logger;
 
-        public FileController(IAddressBookRepository UserRepositary, IService services, ILogger logger)
+        public FileController(IFileRepository fileRepositary, IFileService fileServices, ILogger logger)
         {
-            _userRepository = UserRepositary ?? throw new ArgumentNullException(nameof(UserRepositary));
-            _services = services ?? throw new ArgumentNullException(nameof(services));
+            _fileRepository = fileRepositary ?? throw new ArgumentNullException(nameof(fileRepositary));
+            _fileServices = fileServices ?? throw new ArgumentNullException(nameof(fileServices));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -57,7 +58,7 @@ namespace AddressBook.Controllers
             if (file.Length < 0)
             { _logger.LogError("file empty"); return BadRequest("file empty"); }
 
-            FileResultDto result = _services.StoreImage(userId, file,authId);
+            FileResultDto result = _fileServices.StoreImage(userId, file,authId);
             _logger.LogInformation("file uploaded successfully");
             return Ok(result);
         }
@@ -80,9 +81,7 @@ namespace AddressBook.Controllers
         [SwaggerResponse(500, "Internal server error", typeof(ErrorResponse))]
         public IActionResult DownloadImage([FromQuery(Name = "asset-Id")] Guid assetId)
         {
-            
-
-            Asset Image64 = _userRepository.RetriveImage(assetId);
+            Asset Image64 = _fileRepository.RetriveImage(assetId);
             if (Image64 == null)
             { _logger.LogError("image not found"); return NotFound(); }
 

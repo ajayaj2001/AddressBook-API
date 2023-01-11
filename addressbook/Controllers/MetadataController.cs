@@ -16,12 +16,12 @@ namespace AddressBook.Controllers
     [Route("api/meta-data/ref-set")]
     public class MetadataController : ControllerBase
     {
-        private readonly IService _services;
+        private readonly IMetaDataService _metadataServices;
         private readonly ILogger _logger;
 
-        public MetadataController(IService services, ILogger logger)
+        public MetadataController(IMetaDataService metaDataService, ILogger logger)
         {
-            _services = services ?? throw new ArgumentNullException(nameof(services));
+            _metadataServices = metaDataService ?? throw new ArgumentNullException(nameof(metaDataService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -48,7 +48,7 @@ namespace AddressBook.Controllers
             if (!types.Contains(key))
             { _logger.LogError("meta data not found"); return NotFound(); }
 
-            ICollection<RefSetDto> value = _services.MetaDataUpdate(key);
+            ICollection<RefSetDto> value = _metadataServices.MetaDataUpdate(key);
             _logger.LogInformation("meta data returned successfully");
             return Ok(value);
         }

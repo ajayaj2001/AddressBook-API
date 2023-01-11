@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using AddressBook.Helper;
 using System;
 using AddressBook.Entities.Models;
 using AddressBook.Entities.Dtos;
@@ -14,19 +13,18 @@ namespace AddressBook.Controllers
 {
     //authentication controller
 
-
     [ApiController]
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
-        private readonly IAddressBookRepository _userRepository;
-        private readonly IService _services;
+        private readonly IAuthRepository _authRepository;
+        private readonly IAuthService _authServices;
         private readonly ILogger _logger;
 
-        public AuthController(IAddressBookRepository UserDetailRepositary, IService services, ILogger logger)
+        public AuthController(IAuthRepository authRepositary, IAuthService authService, ILogger logger)
         {
-            _userRepository = UserDetailRepositary ?? throw new ArgumentNullException(nameof(AddressBookRepository));
-            _services = services ?? throw new ArgumentNullException(nameof(services));
+            _authRepository = authRepositary ?? throw new ArgumentNullException(nameof(authRepositary));
+            _authServices = authService ?? throw new ArgumentNullException(nameof(authService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         }
@@ -52,17 +50,16 @@ namespace AddressBook.Controllers
             { _logger.LogError("user_name or password is Empty"); return StatusCode(401, "user_name or password is Empty"); }
 
             //is username exist
-            User User = _userRepository.GetUserByUserName(loginCredentials.UserName);
+            User User = _authRepository.GetUserByUserName(loginCredentials.UserName);
             if (User == null)
             { _logger.LogError("userName not exist"); return Unauthorized( "userName not exist"); }
 
             //is password same
-            bool check = _services.ComparePassword(User.Password, loginCredentials.Password);
+            bool check = _authServices.ComparePassword(User.Password, loginCredentials.Password);
             if (!check)
             { _logger.LogError("wrong password"); return Unauthorized("wrong password"); }
 
-
-            string tokenString = _services.CreateJWTToken(User);
+            string tokenString = _authServices.CreateJWTToken(User);
             _logger.LogError("session created successfully");
             return Ok(new { access_token = tokenString, token_type = "Bearer" });
         }

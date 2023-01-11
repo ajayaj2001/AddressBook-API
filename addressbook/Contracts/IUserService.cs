@@ -1,6 +1,4 @@
 ﻿using AddressBook.Entities.Dtos;
-using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using AddressBook.Entities.Models;
@@ -8,16 +6,8 @@ using AddressBook.Entities.ResponseTypes;
 
 namespace AddressBook.Contracts
 {
-    public interface IService
+    public interface IUserService
     {
-        FileResultDto StoreImage(Guid userId, IFormFile file,Guid authId);
-
-        ICollection<RefSetDto> MetaDataUpdate(string keyword);
-
-        string CreateJWTToken(User userData);
-
-        bool ComparePassword(string userPass, string dbPass);
-
         Guid CreateUser(UserCreatingDto user,Guid authId);
 
         List<User> GetAllAddressBook(PageSortParam pageSortParam);

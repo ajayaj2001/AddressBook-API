@@ -1,103 +1,28 @@
 ﻿using AddressBook.Entities.Dtos;
 using AddressBook.Entities.Models;
-using System.IO;
 using System;
-using Microsoft.AspNetCore.Http;
 using AutoMapper;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.Extensions.Configuration;
 using AddressBook.Helper;
 using AddressBook.Contracts;
 using AddressBook.Entities.ResponseTypes;
 using Microsoft.Extensions.Logging;
+using AddressBook.Repositories;
 
 namespace AddressBook.Services
 {
-    public class Service : IService
+    public class UserService : IUserService
     {
-        private readonly IConfiguration _config;
         private readonly IMapper _mapper;
-        private readonly IAddressBookRepository _userRepository;
+        private readonly IUserRepository _userRepository;
         private readonly ILogger _logger;
 
-        public Service(IConfiguration config, IMapper mapper, IAddressBookRepository UserRepository, ILogger logger)
+        public UserService(IMapper mapper, IUserRepository UserRepository, ILogger logger)
         {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _userRepository = UserRepository ?? throw new ArgumentNullException(nameof(UserRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
-
-        ///<summary>
-        ///store and update details in asset 
-        ///</summary>
-        public FileResultDto StoreImage(Guid userId, IFormFile file, Guid authId)
-        {
-            Guid fileId;
-            using (MemoryStream ms = new MemoryStream())
-            {
-                Asset ImageEntity = StoreImageInDb(ms, userId, file, authId);
-                fileId = ImageEntity.Id;
-            }
-            return new FileResultDto() { Id = fileId, Size = file.Length, FileName = file.Name };
-        }
-
-        ///<summary>
-        ///store image in database
-        ///</summary>
-        public Asset StoreImageInDb(MemoryStream ms, Guid userId, IFormFile file, Guid authId)
-        {
-            file.CopyTo(ms);
-            byte[] fileBytes = ms.ToArray();
-
-            AssetCreatingDto imageCreateDto = new AssetCreatingDto();
-            imageCreateDto.File = Convert.ToBase64String(fileBytes);
-            imageCreateDto.UserId = userId;
-            Asset ImageEntity = _mapper.Map<Asset>(imageCreateDto);
-            ImageEntity.CreatedBy = authId;
-            ImageEntity.CreatedAt = DateTime.Now.ToString();
-            _userRepository.UploadImage(ImageEntity);
-            _userRepository.Save();
-            return ImageEntity;
-        }
-
-        ///<summary>
-        ///return meta data by key
-        ///</summary>
-        public ICollection<RefSetDto> MetaDataUpdate(string keyword)
-        {
-            RefTerm RefTermFromRepo = _userRepository.GetRefTerm(keyword);
-            IEnumerable<Guid> ResultFromRepo = _userRepository.GetRefSetGroup(RefTermFromRepo.RefTermId);
-            IEnumerable<RefSet> RefSetFromRepo = _userRepository.GetRefSet(ResultFromRepo);
-            IEnumerable<RefSetDto> value = _mapper.Map<IEnumerable<RefSetDto>>(RefSetFromRepo);
-            return value.ToList();
-        }
-
-        ///<summary>
-        ///create session token
-        ///</summary>
-        public string CreateJWTToken(User userData)
-        {
-            SymmetricSecurityKey securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSecret:Key"]));
-            SigningCredentials credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            Claim[] claims = new[] {
-         new Claim(JwtRegisteredClaimNames.Sub, userData.Id.ToString()),
-         new Claim(JwtRegisteredClaimNames.Sub, userData.LastName),
-         new Claim(JwtRegisteredClaimNames.Sub, userData.Password),
-         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-
-            JwtSecurityToken token = new JwtSecurityToken(_config["JwtSecret:Issuer"],
-                _config["JwtSecret:Issuer"],
-                claims,
-                expires: DateTime.Now.AddMinutes(290),
-                signingCredentials: credentials);
-            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         ///<summary>
@@ -113,14 +38,6 @@ namespace AddressBook.Services
 
             UserDto userDetail = _mapper.Map<UserDto>(userResult);
             return userDetail.Id;
-        }
-
-        ///<summary>
-        ///compare password
-        ///</summary>
-        public bool ComparePassword(string userPass, string dbPass)
-        {
-            return userPass == dbPass ? true : false;
         }
 
         ///<summary>

@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AddressBook.Contracts;
 using AddressBook.DbContexts;
 using AddressBook.Entities.Models;
 
 namespace AddressBook.Repositories
 {
-    public class AddressBookRepository : IAddressBookRepository
+    public class UserRepository : IUserRepository
     {
         private readonly AddressBookContext _context;
 
-        public AddressBookRepository(AddressBookContext context)
+        public UserRepository(AddressBookContext context)
         {
             _context = context ?? throw new ArgumentException(nameof(context));
         }
@@ -22,7 +21,7 @@ namespace AddressBook.Repositories
         // user operation
         public void CreateUser(User user)
         {
-                       _context.Users.Add(user);
+            _context.Users.Add(user);
 
         }
 
@@ -31,7 +30,7 @@ namespace AddressBook.Repositories
         ///</summary>
         public void UpdateUser(User user)
         {
-           
+
             _context.Users.Update(user);
         }
 
@@ -41,7 +40,7 @@ namespace AddressBook.Repositories
         public void DeleteUser(User user)
         {
 
-         
+
             _context.Users.Remove(user);
         }
 
@@ -54,24 +53,6 @@ namespace AddressBook.Repositories
         }
 
         ///<summary>
-        ///upload user image to db
-        ///</summary>
-        public void UploadImage(Asset saveImage)
-        {
-            _context.Assets.Add(saveImage);
-        }
-        public Asset RetriveImage(Guid id)
-        {
-
-            Asset image = _context.Assets.FirstOrDefault(b => b.Id == id);
-
-            if (image == null)
-                return null;
-
-            return image;
-        }
-
-        ///<summary>
         ///retrive image by user id
         ///</summary>
         public Guid GetImageIdByUserId(Guid id)
@@ -81,38 +62,6 @@ namespace AddressBook.Repositories
 
 
 
-        ///<summary>
-        ///get all ref set group in db
-        ///</summary>
-        public IEnumerable<Guid> GetRefSetGroup(Guid id)
-        {
-            List<Guid> Group = new List<Guid>();
-            foreach (SetRefTerm item in _context.SetRefTerms)
-            {
-                if (item.RefTermId.Equals(id))
-                {
-
-                    Group.Add(item.RefSetId);
-                }
-            }
-            return Group;
-        }
-        ///<summary>
-        ///get ref set by id list
-        ///</summary>
-        public IEnumerable<RefSet> GetRefSet(IEnumerable<Guid> items)
-        {
-
-            return _context.RefSets.Where(a => items.Contains(a.Id));
-        }
-
-        ///<summary>
-        ///get ref term by name
-        ///</summary>
-        public RefTerm GetRefTerm(string name)
-        {
-            return _context.RefTerm.FirstOrDefault(a => a.Key == name);
-        }
 
         ///<summary>
         ///get type id by type name
@@ -206,7 +155,7 @@ namespace AddressBook.Repositories
         ///</summary>
         public User GetUserById(Guid id)
         {
-            
+
             return _context.Users.FirstOrDefault(b => b.Id == id);
         }
         ///<summary>
@@ -231,20 +180,9 @@ namespace AddressBook.Repositories
         ///</summary>
         public bool IsUserExits(Guid userId)
         {
-            
+
             return _context.Users.Any(a => a.Id == userId);
         }
-        ///<summary>
-        ///get user by user name
-        ///</summary>
-        public User GetUserByUserName(string userName)
-        {
-            User user = _context.Users.Where(a => a.UserName == userName).FirstOrDefault();
-
-            return user;
-        }
-
-
 
         ///<summary>
         ///get asset by id

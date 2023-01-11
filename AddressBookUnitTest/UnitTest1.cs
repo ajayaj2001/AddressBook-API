@@ -24,19 +24,24 @@ namespace AddressBookUnitTest
 {
     public class UnitTest1
     {
-        private readonly AddressBookController _addresBookController;
+        private readonly UserController _addresBookController;
         private readonly MetadataController _metaDataController;
         private readonly AuthController _authController;
         private readonly FileController _fileController;
-        private readonly AddressBookRepository _addressBookRepository;
-        private readonly IService _addressBookServices;
+        private readonly UserRepository _addressBookRepository;
+        private readonly AuthRepository _authRepository;
+        private readonly FileRepository _fileRepository;
+        private readonly MetaDataRepository _metaDataRepository;
+        private readonly IUserService _addressBookServices;
+        private readonly IAuthService _authService;
+        private readonly IMetaDataService _metadataService;
+        private readonly IFileService _fileService;
         private readonly AddressBookContext _context;
         private readonly IConfiguration _configuration;
         private readonly ILogger _logger;
         private readonly IMapper _mapper;
         public UnitTest1()
         {
-
             _configuration = new ConfigurationBuilder()
              .AddJsonFile("appsettings.json")
              .Build();
@@ -57,7 +62,7 @@ namespace AddressBookUnitTest
                });
            });
             IHost host = hostBuilder.Build();
-           _logger = host.Services.GetRequiredService<ILogger<AddressBookController>>();
+            _logger = host.Services.GetRequiredService<ILogger<UserController>>();
 
             MapperConfiguration mappingConfig = new MapperConfiguration(mc =>
             {
@@ -66,12 +71,18 @@ namespace AddressBookUnitTest
 
             IMapper mapper = mappingConfig.CreateMapper();
             _mapper = mapper;
-            _addressBookRepository = new AddressBookRepository(_context);
-            _addressBookServices = new Service(_configuration, _mapper, _addressBookRepository,_logger);
-            _addresBookController = new AddressBookController(_addressBookRepository, _addressBookServices, _logger);
-            _metaDataController = new MetadataController(_addressBookServices, _logger);
-            _authController = new AuthController(_addressBookRepository, _addressBookServices, _logger);
-            _fileController = new FileController(_addressBookRepository, _addressBookServices, _logger);
+            _addressBookRepository = new UserRepository(_context);
+            _authRepository = new AuthRepository(_context);
+            _metaDataRepository = new MetaDataRepository(_context);
+            _fileRepository = new FileRepository(_context);
+            _authService = new AuthService(_configuration);
+            _addressBookServices = new UserService(_mapper, _addressBookRepository, _logger);
+            _metadataService = new MetaDataService(_mapper, _metaDataRepository);
+            _fileService = new FileService(_mapper, _addressBookRepository, _fileRepository);
+            _addresBookController = new UserController(_addressBookRepository, _addressBookServices, _logger);
+            _metaDataController = new MetadataController(_metadataService, _logger);
+            _authController = new AuthController(_authRepository, _authService, _logger);
+            _fileController = new FileController(_fileRepository, _fileService, _logger);
         }
 
         /// <summary>
@@ -144,7 +155,7 @@ namespace AddressBookUnitTest
             LoginDetailsDto loginDetails = new LoginDetailsDto() { UserName = "Ajay Kumar", Password = "12345werWER@" };
             var response1 = _authController.UserLogin(loginDetails);
             Assert.IsType<OkObjectResult>(response1);
-  
+
             LoginDetailsDto loginDetails2 = new LoginDetailsDto() { UserName = "Ajaydd Kumar", Password = "12345werWER@" };
             var response2 = _authController.UserLogin(loginDetails2);
             Assert.IsType<UnauthorizedObjectResult>(response2);
@@ -295,7 +306,7 @@ namespace AddressBookUnitTest
             using (var stream = System.IO.File.OpenRead(path))
             {
                 File = new FormFile(stream, 0, stream.Length, Path.GetFileName(stream.Name), Path.GetFileName(stream.Name));
-                
+
                 var response = _fileController.UploadImage(userId, File);
                 Assert.IsType<OkObjectResult>(response);
             };
