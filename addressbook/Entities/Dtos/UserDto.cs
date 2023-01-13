@@ -48,7 +48,7 @@ namespace AddressBook.Entities.Dtos
         ///<summary>
         ///user image 
         ///</summary>
-        public ICollection<AssetDtoResult> AssetDtos { get; set; } = new List<AssetDtoResult>();
+        public ICollection<ResultAssetDto> Assets { get; set; } = new List<ResultAssetDto>();
 
     }
 }

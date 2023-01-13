@@ -1,10 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 
 namespace AddressBook.Entities.Dtos
 {
-    public class AssetDtoResult
+    public class ResultAssetDto
     {
         ///<summary>
         ///unique id of asset

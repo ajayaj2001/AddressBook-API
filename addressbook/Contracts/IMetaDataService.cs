@@ -5,6 +5,10 @@ namespace AddressBook.Contracts
 {
     public interface IMetaDataService
     {
-        ICollection<RefSetDto> MetaDataUpdate(string keyword);
+        ///<summary>
+        ///return meta data by key
+        ///</summary>
+        ///<param name="keyword"></param>
+        ResultMetaData FetchMetaData(string keyword);
     }
 }

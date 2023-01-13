@@ -20,6 +20,7 @@ namespace AddressBook.Repositories
         ///<summary>
         ///get all ref set group in db
         ///</summary>
+        ///<param name="id"></param>
         public IEnumerable<Guid> GetRefSetGroup(Guid id)
         {
             List<Guid> Group = new List<Guid>();
@@ -36,6 +37,7 @@ namespace AddressBook.Repositories
         ///<summary>
         ///get ref set by id list
         ///</summary>
+        ///<param name="items"></param>
         public IEnumerable<RefSet> GetRefSet(IEnumerable<Guid> items)
         {
 
@@ -45,6 +47,7 @@ namespace AddressBook.Repositories
         ///<summary>
         ///get ref term by name
         ///</summary>
+        ///<param name="name"></param>
         public RefTerm GetRefTerm(string name)
         {
             return _context.RefTerm.FirstOrDefault(a => a.Key == name);

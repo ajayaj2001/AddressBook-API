@@ -26,7 +26,6 @@ namespace AddressBook.Controllers
             _authRepository = authRepositary ?? throw new ArgumentNullException(nameof(authRepositary));
             _authServices = authService ?? throw new ArgumentNullException(nameof(authService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
         }
 
         ///<summary> 
@@ -60,7 +59,7 @@ namespace AddressBook.Controllers
             { _logger.LogError("wrong password"); return Unauthorized("wrong password"); }
 
             string tokenString = _authServices.CreateJWTToken(User);
-            _logger.LogError("session created successfully");
+            _logger.LogInformation("session created successfully");
             return Ok(new { access_token = tokenString, token_type = "Bearer" });
         }
 

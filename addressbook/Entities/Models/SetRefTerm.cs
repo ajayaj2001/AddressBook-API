@@ -4,14 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AddressBook.Entities.Models
 {
-    public class SetRefTerm 
+    public class SetRefTerm : BaseModel
     {
-        ///<summary>
-        ///unique id of set ref term
-        ///</summary>
-        [Key]
-        public Guid SetRefTermId { get; set; }
-
         ///<summary>
         ///refers ref set field
         ///</summary>

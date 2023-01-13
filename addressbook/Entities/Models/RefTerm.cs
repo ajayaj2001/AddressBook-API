@@ -3,13 +3,9 @@ using System;
 
 namespace AddressBook.Entities.Models
 {
-    public class RefTerm
+    public class RefTerm : BaseModel
     {
-        ///<summary>
-        ///unique id of ref term
-        ///</summary>
-        [Key]
-        public Guid RefTermId { get; set; }
+        
 
         ///<summary>
         ///ref term name

@@ -17,6 +17,7 @@ namespace AddressBook.Repositories
         ///<summary>
         ///upload user image to db
         ///</summary>
+        ///<param name="saveImage"></param>
         public void UploadImage(Asset saveImage)
         {
             _context.Assets.Add(saveImage);
@@ -25,6 +26,7 @@ namespace AddressBook.Repositories
         ///<summary>
         ///retrive image from db
         ///</summary>
+        ///<param name="id"></param>
         public Asset RetriveImage(Guid id)
         {
             Asset image = _context.Assets.FirstOrDefault(b => b.Id == id);

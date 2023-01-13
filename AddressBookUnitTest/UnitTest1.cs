@@ -19,6 +19,13 @@ using System.IO;
 using Xunit;
 using System.Linq;
 using AddressBookUnitTest.DbContext;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Data.SqlClient;
+using System.Drawing;
+using System.Globalization;
+using Moq;
+using System.Security.Claims;
+using AddressBook.Entities.Models;
 
 namespace AddressBookUnitTest
 {
@@ -83,6 +90,15 @@ namespace AddressBookUnitTest
             _metaDataController = new MetadataController(_metadataService, _logger);
             _authController = new AuthController(_authRepository, _authService, _logger);
             _fileController = new FileController(_fileRepository, _fileService, _logger);
+
+            var userId = "7cf56f52-1aab-4646-b090-d337aac18370";
+            var contextMock = new Mock<HttpContext>();
+            contextMock.Setup(x => x.User).Returns(new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
+                                        new Claim(ClaimTypes.NameIdentifier,userId)
+                                        // other required and custom claims
+                           }, "TestAuthentication")));
+            _addresBookController.ControllerContext.HttpContext = contextMock.Object;
+            _fileController.ControllerContext.HttpContext = contextMock.Object;
         }
 
         /// <summary>
@@ -95,7 +111,7 @@ namespace AddressBookUnitTest
             Assert.IsType<CountSuccessResponse>(response.Value);
 
             CountSuccessResponse resultCount = response.Value as CountSuccessResponse;
-            Assert.Equal(2, resultCount.count);
+            Assert.Equal(3, resultCount.count);
         }
 
         /// <summary>
@@ -121,29 +137,10 @@ namespace AddressBookUnitTest
         [Fact]
         public void GetAllAddress_OkObjectResult()
         {
-            PageSortParam page = new PageSortParam() { PageNo = 1, Size = 1 };
-
-            ActionResult response1 = _addresBookController.GetAllAddressBook(page) as ActionResult;
+            ActionResult response1 = _addresBookController.GetAllAddressBook(10, 1) as ActionResult;
             Assert.IsType<OkObjectResult>(response1);
             OkObjectResult item = response1 as OkObjectResult;
             Assert.IsType<List<UserDto>>(item.Value);
-        }
-
-        /// <summary>
-        ///  To test the delete address book
-        /// </summary>
-        [Fact]
-        public void deleteAddressBook_OkObjectResult()
-        {
-            Guid userId1 = Guid.Parse("5fad8d04-6126-47f8-bac7-409c0cee5425");
-            ActionResult response1 = _addresBookController.DeleteAddressBook(userId1) as ActionResult;
-            Assert.IsType<OkObjectResult>(response1);
-            OkObjectResult item = response1 as OkObjectResult;
-            Assert.IsType<string>(item.Value);
-
-            Guid userId2 = Guid.Parse("5fad8d04-6126-47f8-bac7-409c0cee5466");
-            ActionResult response2 = _addresBookController.DeleteAddressBook(userId2) as ActionResult;
-            Assert.IsType<NotFoundResult>(response2);
         }
 
         /// <summary>
@@ -167,17 +164,19 @@ namespace AddressBookUnitTest
         [Fact]
         public void Create_AddressBook_ReturnOkResponses()
         {
-            UserCreatingDto user = new UserCreatingDto()
+
+
+            CreateUserDto user = new CreateUserDto()
             {
                 FirstName = "pradeep",
                 LastName = "kumar",
                 UserName = "pradeep kumar",
                 Password = "pradeeeP@77",
-                Addresses = new List<AddressCreatingDto>(),
-                Emails = new List<EmailCreatingDto>(),
-                Phones = new List<PhoneNumberCreatingDto>(),
+                Addresses = new List<CreateAddressDto>(),
+                Emails = new List<CreateEmailDto>(),
+                Phones = new List<CreatePhoneNumberDto>(),
             };
-            user.Addresses.Add(new AddressCreatingDto()
+            user.Addresses.Add(new CreateAddressDto()
             {
                 Line1 = "24 seval",
                 Line2 = "nandavanam",
@@ -187,16 +186,19 @@ namespace AddressBookUnitTest
                 Type = "PERSONAL",
                 Country = "INDIA"
             });
-            user.Emails.Add(new EmailCreatingDto()
+            user.Emails.Add(new CreateEmailDto()
             {
                 EmailAddress = "who@ajay.live",
                 Type = "WORK"
             });
-            user.Phones.Add(new PhoneNumberCreatingDto()
+            user.Phones.Add(new CreatePhoneNumberDto()
             {
                 PhoneNumber = "8189900490",
                 Type = "PERSONAL"
             });
+
+
+
             ActionResult<string> account = _addresBookController.CreateAddressBook(user);
             Assert.IsType<OkObjectResult>(account.Result);
 
@@ -217,21 +219,22 @@ namespace AddressBookUnitTest
             Assert.IsType<NotFoundObjectResult>(account.Result);
         }
 
+
         /// <summary>
         ///   To test the update method in the user
         /// </summary>
         [Fact]
         public void Update_AddressBook_ReturnOkResponses()
         {
-            UserUpdatingDto user = new UserUpdatingDto()
+            UpdateUserDto user = new UpdateUserDto()
             {
                 FirstName = "Ram",
                 LastName = "kumar",
-                Addresses = new List<AddressUpdatingDto>(),
-                Emails = new List<EmailUpdatingDto>(),
-                Phones = new List<PhoneNumberUpdatingDto>(),
+                Addresses = new List<UpdateAddressDto>(),
+                Emails = new List<UpdateEmailDto>(),
+                Phones = new List<UpdatePhoneNumberDto>(),
             };
-            user.Addresses.Add(new AddressUpdatingDto()
+            user.Addresses.Add(new UpdateAddressDto()
             {
                 Line1 = "anna nagar",
                 Line2 = "aruppukottai",
@@ -241,12 +244,12 @@ namespace AddressBookUnitTest
                 Type = "PERSONAL",
                 Country = "INDIA"
             });
-            user.Emails.Add(new EmailUpdatingDto()
+            user.Emails.Add(new UpdateEmailDto()
             {
                 EmailAddress = "support@ajay.live",
                 Type = "PERSONAL"
             });
-            user.Phones.Add(new PhoneNumberUpdatingDto()
+            user.Phones.Add(new UpdatePhoneNumberDto()
             {
                 PhoneNumber = "8189900410",
                 Type = "PERSONAL"
@@ -256,22 +259,24 @@ namespace AddressBookUnitTest
             ActionResult<string> account = _addresBookController.UpdateAddressBook(userId, user);
             Assert.IsType<OkObjectResult>(account.Result);
 
-            // If the email or phone number is already exist
-            user.Emails.First().EmailAddress = "ajay@gmail.com";
-            user.Emails.First().Type = "PERSONAL";
-            user.Phones.First().Type = "PERSONAL";
-            user.Addresses.First().Type = "PERSONAL";
-            user.Addresses.First().Country = "INDIA";
-            account = _addresBookController.UpdateAddressBook(Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"), user);
-            Assert.IsType<ConflictObjectResult>(account.Result);
-
             //If the RefTerm Not Found
             user.Emails.First().EmailAddress = "ajay@gmail.com";
             user.Phones.First().PhoneNumber = "2345678999";
             user.Addresses.First().Type = "alternative";
             account = _addresBookController.UpdateAddressBook(Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"), user);
             Assert.IsType<NotFoundObjectResult>(account.Result);
+
+            // If the email or phone number is already exist
+            user.Emails.First().EmailAddress = "admin2@ajay.live";
+            user.Emails.First().Type = "PERSONAL";
+            user.Phones.First().Type = "PERSONAL";
+            user.Addresses.First().Type = "PERSONAL";
+            user.Addresses.First().Country = "INDIA";
+            account = _addresBookController.UpdateAddressBook(Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"), user);
+            Assert.IsType<ConflictObjectResult>(account.Result);
         }
+
+
 
         /// <summary>
         ///  To test the meta data type
@@ -284,12 +289,12 @@ namespace AddressBookUnitTest
             Assert.IsType<OkObjectResult>(response);
 
             OkObjectResult item = response as OkObjectResult;
-            List<RefSetDto> list = item.Value as List<RefSetDto>;
-            Assert.Equal("PERSONAL", list[0].Key);
+            ResultMetaData list = item.Value as ResultMetaData;
+            Assert.Equal("PERSONAL", list.RefSetList[0].Key);
 
             string key2 = "NAME_TYPE";
             ActionResult response2 = _metaDataController.FetchMetaData(key2) as ActionResult;
-            Assert.IsType<NotFoundResult>(response2);
+            Assert.IsType<NotFoundObjectResult>(response2);
         }
 
         // <summary>
@@ -326,6 +331,26 @@ namespace AddressBookUnitTest
             var response2 = _fileController.DownloadImage(assetId2);
             Assert.IsType<NotFoundResult>(response2);
         }
+
+
+        /// <summary>
+        ///  To test the delete address book
+        /// </summary>
+
+        [Fact]
+        public void deleteAddressBook_OkObjectResult()
+        {
+            Guid userId1 = Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370");
+            ActionResult response1 = _addresBookController.DeleteAddressBook(userId1) as ActionResult;
+            Assert.IsType<OkObjectResult>(response1);
+            OkObjectResult item = response1 as OkObjectResult;
+            Assert.IsType<string>(item.Value);
+
+            Guid userId2 = Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370");
+            ActionResult response2 = _addresBookController.DeleteAddressBook(userId2) as ActionResult;
+            Assert.IsType<NotFoundResult>(response2);
+        }
+
 
     }
 }

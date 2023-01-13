@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AddressBook.Entities.Dtos
 {
-    public class UserCreatingDto : BaseDto
+    public class CreateUserDto : BaseDto
     {
         ///<summary>
         ///first name of user
@@ -34,16 +34,16 @@ namespace AddressBook.Entities.Dtos
         ///<summary>
         ///email details list of user
         ///</summary>
-        public ICollection<EmailCreatingDto> Emails { get; set; } = new List<EmailCreatingDto>();
+        public ICollection<CreateEmailDto> Emails { get; set; } = new List<CreateEmailDto>();
 
         ///<summary>
         ///addrss details list of user
         ///</summary>
-        public ICollection<AddressCreatingDto> Addresses { get; set; } = new List<AddressCreatingDto>();
+        public ICollection<CreateAddressDto> Addresses { get; set; } = new List<CreateAddressDto>();
         
         ///<summary>
         ///phone dettails list of user 
         ///</summary>
-        public ICollection<PhoneNumberCreatingDto> Phones { get; set; } = new List<PhoneNumberCreatingDto>();
+        public ICollection<CreatePhoneNumberDto> Phones { get; set; } = new List<CreatePhoneNumberDto>();
     }
 }

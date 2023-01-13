@@ -21,6 +21,7 @@ namespace AddressBook.Services
         ///<summary>
         ///create session token
         ///</summary>
+        ///<param name="userData"></param>
         public string CreateJWTToken(User userData)
         {
             SymmetricSecurityKey securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSecret:Key"]));
@@ -43,6 +44,8 @@ namespace AddressBook.Services
         ///<summary>
         ///compare password
         ///</summary>
+        ///<param name="dbPass"></param>
+        ///<param name="userPass"></param>
         public bool ComparePassword(string userPass, string dbPass)
         {
             return userPass == dbPass ? true : false;

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using AddressBook.Entities.Dtos;
-using System.Linq;
 using AddressBook.Entities.ResponseTypes;
 using Swashbuckle.AspNetCore.Annotations;
 using AddressBook.Contracts;
@@ -44,13 +43,14 @@ namespace AddressBook.Controllers
         [SwaggerResponse(500, "Internal server error", typeof(ErrorResponse))]
         public IActionResult FetchMetaData(string key)
         {
-            string[] types = new string[] { "ADDRESS_TYPE", "PHONE_NUMBER_TYPE", "EMAIL_ADDRESS_TYPE", "COUNTRY" };
-            if (!types.Contains(key))
-            { _logger.LogError("meta data not found"); return NotFound(); }
-
-            ICollection<RefSetDto> value = _metadataServices.MetaDataUpdate(key);
+            ResultMetaData value = _metadataServices.FetchMetaData(key);
             _logger.LogInformation("meta data returned successfully");
+
+            if (value.Key == null)
+            { _logger.LogError("meta data not found"); return NotFound("meta data not found"); }
             return Ok(value);
+
         }
+
     }
 }

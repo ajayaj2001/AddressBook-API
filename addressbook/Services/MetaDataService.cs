@@ -14,23 +14,35 @@ namespace AddressBook.Services
         private readonly IMapper _mapper;
         private readonly IMetaDataRepository _metaDataRepository;
 
-
         public MetaDataService(IMapper mapper, IMetaDataRepository metaDataRepository)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _metaDataRepository = metaDataRepository ?? throw new ArgumentNullException(nameof(metaDataRepository));
         }
 
+
         ///<summary>
         ///return meta data by key
         ///</summary>
-        public ICollection<RefSetDto> MetaDataUpdate(string keyword)
+        ///<param name="keyword"></param>
+        public ResultMetaData FetchMetaData(string keyword)
         {
             RefTerm RefTermFromRepo = _metaDataRepository.GetRefTerm(keyword);
-            IEnumerable<Guid> ResultFromRepo = _metaDataRepository.GetRefSetGroup(RefTermFromRepo.RefTermId);
-            IEnumerable<RefSet> RefSetFromRepo = _metaDataRepository.GetRefSet(ResultFromRepo);
-            IEnumerable<RefSetDto> value = _mapper.Map<IEnumerable<RefSetDto>>(RefSetFromRepo);
-            return value.ToList();
+            if (RefTermFromRepo != null)
+            {
+                IEnumerable<Guid> ResultFromRepo = _metaDataRepository.GetRefSetGroup(RefTermFromRepo.Id);
+                IEnumerable<RefSet> RefSetFromRepo = _metaDataRepository.GetRefSet(ResultFromRepo);
+                IEnumerable<RefSetDto> value = _mapper.Map<IEnumerable<RefSetDto>>(RefSetFromRepo);
+                ResultMetaData metaData = new ResultMetaData();
+                metaData.Description = RefTermFromRepo.Description;
+                metaData.RefTermId = RefTermFromRepo.Id;
+                metaData.Key = RefTermFromRepo.Key;
+                metaData.RefSetList = value.ToList();
+                return metaData;
+            }
+            ResultMetaData metaData2 = new ResultMetaData();
+            metaData2.Key = null;
+            return metaData2;
         }
     }
 }

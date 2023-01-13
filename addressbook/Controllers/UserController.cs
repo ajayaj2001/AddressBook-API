@@ -47,13 +47,9 @@ namespace AddressBook.Controllers
         [SwaggerResponse(409, "Conflict", typeof(ErrorResponse))]
         [SwaggerResponse(404, "Not Found", typeof(ErrorResponse))]
         [SwaggerResponse(500, "Internal server error", typeof(ErrorResponse))]
-        public ActionResult<string> CreateAddressBook([FromBody] UserCreatingDto user)
+        public ActionResult<string> CreateAddressBook([FromBody] CreateUserDto user)
         {
-            Guid authId;
-            if (String.IsNullOrEmpty(ClaimTypes.NameIdentifier))
-                authId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            else //while testing dummy userid
-                authId = Guid.Parse("6ebb437a-03e5-4ebf-83fa-652f548368f2");
+              Guid  authId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             ValidateInputResponse validate= _userServices.ValidateUserInputCreate(user);
             if (validate.errorCode == 404)
@@ -65,7 +61,7 @@ namespace AddressBook.Controllers
             }
             else
             {
-                UserCreatingDto updatedUser = _userServices.UpdateUserDetailsForCreate(user,authId);
+                CreateUserDto updatedUser = _userServices.UpdateUserDetailsForCreate(user,authId);
                 _logger.LogInformation("new user created successfully");
                 return Ok(_userServices.CreateUser(updatedUser, authId));
             }
@@ -75,7 +71,10 @@ namespace AddressBook.Controllers
         ///Get All Address Book 
         ///</summary>
         ///<remarks>To get all the address book stored in the database</remarks> 
-        ///<param name="pageSortParam"></param> 
+        ///<param name="size"></param> 
+        /// ///<param name="pageNo"></param> 
+        /// ///<param name="sortBy"></param> 
+        /// ///<param name="sortOrder"></param> 
         ///<response code = "200" >get all address book based on query returned successfully</response> 
         ///<response code = "401" >Not an authorized user</response>
         ///<response code = "404" >AddressBook not found</response>
@@ -87,18 +86,23 @@ namespace AddressBook.Controllers
         [SwaggerResponse(401, "Unauthorized", typeof(ErrorResponse))]
         [SwaggerResponse(404, "Not Found", typeof(ErrorResponse))]
         [SwaggerResponse(500, "Internal server error", typeof(ErrorResponse))]
-        public IActionResult GetAllAddressBook([FromQuery] PageSortParam pageSortParam)
+        public IActionResult GetAllAddressBook(int size=10,int pageNo=1,string sortBy="",string sortOrder="")
         {
-            List<User> users = _userServices.GetAllAddressBook(pageSortParam);
+            PageSortParam pageSortParam = new PageSortParam() { Size=size,PageNo=pageNo,SortBy=sortBy };
+            if (sortOrder == "ASC")
+                pageSortParam.SortOrder = SortDirection.ASC;
+            else if (sortOrder == "DESC")
+                pageSortParam.SortOrder = SortDirection.DESC;
+            
+                List<User> users = _userServices.GetAllAddressBook(pageSortParam);
             if (users == null)
             {
                 _logger.LogError("User Not Found");
                 return new NotFoundResult();
             }
             _logger.LogInformation("returned all address book");
-            return Ok(_userServices.UpdateAddressBookDetail(users));
+            return Ok(_userServices.FetchAddressBookDetail(users));
         }
-
 
         ///<summary> 
         ///Get Address Book Count
@@ -146,7 +150,7 @@ namespace AddressBook.Controllers
                 return NotFound();
             }
             _logger.LogInformation("returned individual address book ");
-            return Ok(_userServices.UpdateSingleAddressBookDetail(foundUser));
+            return Ok(_userServices.FetchSingleAddressBookDetail(foundUser));
         }
 
         ///<summary> 
@@ -183,7 +187,7 @@ namespace AddressBook.Controllers
         ///</summary>
         ///<remarks>To update the existing address book details like first name etc</remarks> 
         ///<param name="user"></param> 
-        ///<param name="userId"></param>
+        ///<param name="id"></param>
         ///<response code = "200" >Address book updated successfully</response> 
         ///<response code = "401" >Not an authorized user</response>
         ///<response code = "409" >The user input is not valid</response>
@@ -197,13 +201,10 @@ namespace AddressBook.Controllers
         [SwaggerResponse(404, "Not Found", typeof(ErrorResponse))]
         [SwaggerResponse(409, "Conflict", typeof(ErrorResponse))]
         [SwaggerResponse(500, "Internal server error", typeof(ErrorResponse))]
-        public ActionResult<string> UpdateAddressBook(Guid id, [FromBody] UserUpdatingDto user)
+        public ActionResult<string> UpdateAddressBook(Guid id, [FromBody] UpdateUserDto user)
         {
-            Guid authId;
-            if (String.IsNullOrEmpty(ClaimTypes.NameIdentifier))
-                authId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            else //while testing dummy userid
-                authId = Guid.Parse("6ebb437a-03e5-4ebf-83fa-652f548368f2");
+            
+            Guid  authId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             User userFromRepo = _userRepository.GetUserById(id);
             if (userFromRepo == null)
@@ -223,12 +224,11 @@ namespace AddressBook.Controllers
             }
             else
             {
-                UserUpdatingDto updatedUser = _userServices.UpdateUserDetailsForUpdate(user, authId);
+                UpdateUserDto updatedUser = _userServices.UpdateUserDetailsForUpdate(user, authId);
                 _userServices.UpdateAddressBook(id, updatedUser, userFromRepo, authId);
                 _logger.LogInformation("Addresstype updated successfully");
                 return Ok("updated");
             }
-          
         }
     }
 }

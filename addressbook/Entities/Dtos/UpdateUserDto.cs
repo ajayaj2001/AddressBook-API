@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace AddressBook.Entities.Dtos
 {
-    public class UserUpdatingDto : BaseDto
+    public class UpdateUserDto : BaseDto
     {
         ///<summary>
         ///first name of user 
@@ -22,16 +22,16 @@ namespace AddressBook.Entities.Dtos
         ///<summary>
         ///address list of user 
         ///</summary>
-        public ICollection<AddressUpdatingDto> Addresses { get; set; } = new List<AddressUpdatingDto>();
+        public ICollection<UpdateAddressDto> Addresses { get; set; } = new List<UpdateAddressDto>();
         
         ///<summary>
         ///email list of user
         ///</summary>
-        public ICollection<EmailUpdatingDto> Emails { get; set; } = new List<EmailUpdatingDto>();
+        public ICollection<UpdateEmailDto> Emails { get; set; } = new List<UpdateEmailDto>();
 
         ///<summary>
         ///phone number list of user 
         ///</summary>
-        public ICollection<PhoneNumberUpdatingDto> Phones { get; set; } = new List<PhoneNumberUpdatingDto>();
+        public ICollection<UpdatePhoneNumberDto> Phones { get; set; } = new List<UpdatePhoneNumberDto>();
     }
 }

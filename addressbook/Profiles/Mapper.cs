@@ -10,27 +10,27 @@ namespace AddressBook.Profiles
         public Mapper()
         {
             //user
-            CreateMap<UserCreatingDto, User>().ReverseMap();
-            CreateMap<UserUpdatingDto, User>();
+            CreateMap<CreateUserDto, User>().ReverseMap();
+            CreateMap<UpdateUserDto, User>();
             CreateMap<User, UserDto>();
 
             //email
-            CreateMap<EmailCreatingDto, Email>().ForMember(
+            CreateMap<CreateEmailDto, Email>().ForMember(
               dest => dest.TypeId,
               opt => opt.MapFrom(src => (Guid.Parse(src.Type)))
           ).ReverseMap();
-            CreateMap<EmailUpdatingDto, Email>().ForMember(
+            CreateMap<UpdateEmailDto, Email>().ForMember(
                 dest => dest.TypeId,
                 opt => opt.MapFrom(src => (Guid.Parse(src.Type)))
             ).ReverseMap();
             CreateMap<EmailDto, Email>().ReverseMap();
 
             //address
-            CreateMap<AddressCreatingDto, Address>().ForMember(
+            CreateMap<CreateAddressDto, Address>().ForMember(
                 dest => dest.Country,
                 opt => opt.MapFrom(src => (Guid.Parse(src.Country)))
             ).ReverseMap();
-            CreateMap<AddressUpdatingDto, Address>().ForMember(
+            CreateMap<UpdateAddressDto, Address>().ForMember(
                 dest => dest.Country,
                 opt => opt.MapFrom(src => (Guid.Parse(src.Country)))
             ).ForMember(
@@ -40,19 +40,19 @@ namespace AddressBook.Profiles
             CreateMap<AddressDto, Address>().ReverseMap();
 
             //phone
-            CreateMap<PhoneNumberCreatingDto, Phone>().ForMember(
+            CreateMap<CreatePhoneNumberDto, Phone>().ForMember(
                dest => dest.TypeId,
                opt => opt.MapFrom(src => (Guid.Parse(src.Type)))
            ).ReverseMap();
-            CreateMap<PhoneNumberUpdatingDto, Phone>().ForMember(
+            CreateMap<UpdatePhoneNumberDto, Phone>().ForMember(
                 dest => dest.TypeId,
                 opt => opt.MapFrom(src => (Guid.Parse(src.Type)))
             ).ReverseMap();
             CreateMap<PhoneDto, Phone>().ReverseMap();
 
             //asset
-            CreateMap<AssetCreatingDto, Asset>().ReverseMap();
-            CreateMap<AssetDtoResult, Asset>().ReverseMap();
+            CreateMap<CreateAssetDto, Asset>().ReverseMap();
+            CreateMap<ResultAssetDto, Asset>().ReverseMap();
 
             //Refset
             CreateMap<RefSetDto, RefSet>().ReverseMap();          

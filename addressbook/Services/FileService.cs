@@ -27,6 +27,9 @@ namespace AddressBook.Services
         ///<summary>
         ///store and update details in asset 
         ///</summary>
+        ///<param name="authId"></param>
+        ///<param name="userId"></param>
+        ///<param name="file"></param>
         public FileResultDto StoreImage(Guid userId, IFormFile file, Guid authId)
         {
             Guid fileId;
@@ -46,7 +49,7 @@ namespace AddressBook.Services
             file.CopyTo(ms);
             byte[] fileBytes = ms.ToArray();
 
-            AssetCreatingDto imageCreateDto = new AssetCreatingDto();
+            CreateAssetDto imageCreateDto = new CreateAssetDto();
             imageCreateDto.File = Convert.ToBase64String(fileBytes);
             imageCreateDto.UserId = userId;
             Asset ImageEntity = _mapper.Map<Asset>(imageCreateDto);

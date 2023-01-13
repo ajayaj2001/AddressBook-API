@@ -3,13 +3,8 @@ using System;
 
 namespace AddressBook.Entities.Models
 {
-    public class RefSet 
+    public class RefSet : BaseModel
     {
-        ///<summary>
-        /// unique id field 
-        ///</summary>
-        [Key]
-        public Guid Id { get; set; }
 
         ///<summary>
         ///name of ref set

@@ -17,6 +17,7 @@ namespace AddressBook.Repositories
         ///<summary>
         ///get user by user name
         ///</summary>
+        ///<param name="userName"></param>
         public User GetUserByUserName(string userName)
         {
             User user = _context.Users.Where(a => a.UserName == userName).FirstOrDefault();

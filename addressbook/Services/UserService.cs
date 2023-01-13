@@ -28,8 +28,13 @@ namespace AddressBook.Services
         ///<summary>
         ///create new user in db
         ///</summary>
-        public Guid CreateUser(UserCreatingDto user, Guid authId)
+        ///<param name="authId"></param>
+        ///<param name="user"></param>
+        public Guid CreateUser(CreateUserDto user, Guid authId)
         {
+            if (authId == null)
+                throw new Exception("empty auth");
+
             User userResult = _mapper.Map<User>(user);
             userResult.CreatedAt = DateTime.Now.ToString();
             userResult.CreatedBy = authId;
@@ -43,6 +48,7 @@ namespace AddressBook.Services
         ///<summary>
         ///get all address book based on filter
         ///</summary>
+        ///<param name="pageSortParam"></param>
         public List<User> GetAllAddressBook(PageSortParam pageSortParam)
         {
             IEnumerable<User> foundedUserList = _userRepository.GetAllUsers();
@@ -53,7 +59,8 @@ namespace AddressBook.Services
         ///<summary>
         ///update address book in database
         ///</summary>
-        public IEnumerable<UserDto> UpdateAddressBookDetail(List<User> users)
+        ///<param name="users"></param>
+        public IEnumerable<UserDto> FetchAddressBookDetail(List<User> users)
         {
             foreach (User user in users)
             {
@@ -68,7 +75,8 @@ namespace AddressBook.Services
         ///<summary>
         ///get single address book detais
         ///</summary>
-        public UserDto UpdateSingleAddressBookDetail(User user)
+        ///<param name="user"></param>
+        public UserDto FetchSingleAddressBookDetail(User user)
         {
             user.Emails = _userRepository.GetEmailIds(user.Id).ToList();
             user.Addresses = _userRepository.GetAddressIds(user.Id).ToList();
@@ -81,6 +89,7 @@ namespace AddressBook.Services
         ///<summary>
         ///delete address book in database
         ///</summary>
+        ///<param name="user"></param>
         public void DeleteAddressBook(User user)
         {
             _userRepository.DeleteUser(user);
@@ -90,24 +99,31 @@ namespace AddressBook.Services
         ///<summary>
         ///update address book details
         ///</summary>
-        public void UpdateAddressBook(Guid userId, UserUpdatingDto userInput, User userFromRepo, Guid authId)
+        ///<param name="authId"></param>
+        ///<param name="userId"></param>
+        ///<param name="userFromRepo"></param>
+        ///<param name="userInput"></param>
+        public void UpdateAddressBook(Guid userId, UpdateUserDto userInput, User userFromRepo, Guid authId)
         {
             List<Email> emailCollection = _userRepository.GetEmailIds(userId).ToList();
             List<Phone> phCollection = _userRepository.GetPhoneIds(userId).ToList();
             List<Address> addressCollection = _userRepository.GetAddressIds(userId).ToList();
-            for (int i = 0; i < emailCollection.Count; i++)
-            {
-                userInput.Emails.ElementAt(i).Id = emailCollection[i].Id;
-            }
-            for (int i = 0; i < addressCollection.Count; i++)
-            {
-                userInput.Addresses.ElementAt(i).Id = addressCollection[i].Id;
-            }
-            for (int i = 0; i < phCollection.Count; i++)
-            {
-                userInput.Phones.ElementAt(i).Id = phCollection[i].Id;
-            }
 
+            emailCollection.Select((value, i) =>
+            {
+                userInput.Emails.ElementAt(i).Id = value.Id;
+                return value;
+            });
+            phCollection.Select((value, i) =>
+            {
+                userInput.Phones.ElementAt(i).Id = value.Id;
+                return value;
+            });
+            addressCollection.Select((value, i) =>
+            {
+                userInput.Addresses.ElementAt(i).Id = value.Id;
+                return value;
+            });          
             _mapper.Map(userInput, userFromRepo);
             userFromRepo.UpdatedAt = DateTime.Now.ToString();
             userFromRepo.UpdatedBy = authId;
@@ -115,10 +131,14 @@ namespace AddressBook.Services
             _userRepository.Save();
         }
 
-        public ValidateInputResponse ValidateUserInputCreate(UserCreatingDto user)
+        ///<summary>
+        ///validate user input in create user 
+        ///</summary>
+        ///<param name="user"></param>
+        public ValidateInputResponse ValidateUserInputCreate(CreateUserDto user)
         {
             //check email & type
-            foreach (EmailCreatingDto item in user.Emails)
+            foreach (CreateEmailDto item in user.Emails)
             {
                 if (_userRepository.IsEmailExist(item.EmailAddress))
                 {
@@ -137,7 +157,7 @@ namespace AddressBook.Services
                 return new ValidateInputResponse() { errorMessage = "Dont enter same email multiple time", errorCode = 409 };
             }
 
-            foreach (PhoneNumberCreatingDto item in user.Phones)
+            foreach (CreatePhoneNumberDto item in user.Phones)
             {
                 if (!_userRepository.IsMetadataExist(item.Type))
                 {
@@ -158,7 +178,7 @@ namespace AddressBook.Services
             }
 
             //check address & type
-            foreach (AddressCreatingDto item in user.Addresses)
+            foreach (CreateAddressDto item in user.Addresses)
             {
                 if (!_userRepository.IsMetadataExist(item.Country))
                 {
@@ -175,9 +195,15 @@ namespace AddressBook.Services
 
             return new ValidateInputResponse() { errorMessage = "no error", errorCode = 200 };
         }
-        public ValidateInputResponse ValidateUserInputUpdate(UserUpdatingDto user, Guid id)
+
+        ///<summary>
+        ///validate user input in update user 
+        ///</summary>
+        ///<param name="user"></param>
+        ///<param name="id"></param>
+        public ValidateInputResponse ValidateUserInputUpdate(UpdateUserDto user, Guid id)
         {
-            foreach (EmailUpdatingDto item in user.Emails)
+            foreach (UpdateEmailDto item in user.Emails)
             {
                 if (!_userRepository.IsMetadataExist(item.Type))
                 {
@@ -198,7 +224,7 @@ namespace AddressBook.Services
                 return new ValidateInputResponse() { errorMessage = "Email is already exist", errorCode = 409 };
             }
 
-            foreach (PhoneNumberUpdatingDto item in user.Phones)
+            foreach (UpdatePhoneNumberDto item in user.Phones)
             {
 
                 if (!_userRepository.IsMetadataExist(item.Type))
@@ -222,7 +248,7 @@ namespace AddressBook.Services
                 return new ValidateInputResponse() { errorMessage = "Email is already exist", errorCode = 409 };
             }
 
-            foreach (AddressUpdatingDto item in user.Addresses)
+            foreach (UpdateAddressDto item in user.Addresses)
             {
                 if (!_userRepository.IsMetadataExist(item.Country))
                 {
@@ -238,22 +264,28 @@ namespace AddressBook.Services
 
             return new ValidateInputResponse() { errorMessage = "no error", errorCode = 200 };
         }
-        public UserCreatingDto UpdateUserDetailsForCreate(UserCreatingDto user, Guid authId)
+
+        ///<summary>
+        ///fetch user details for create 
+        ///</summary>
+        ///<param name="user"></param>
+        ///<param name="authId"></param>
+        public CreateUserDto UpdateUserDetailsForCreate(CreateUserDto user, Guid authId)
         {
-            foreach (EmailCreatingDto item in user.Emails)
+            foreach (CreateEmailDto item in user.Emails)
             {
                 item.CreatedAt = DateTime.Now.ToString();
                 item.CreatedBy = authId;
                 item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
             }
-            foreach (PhoneNumberCreatingDto item in user.Phones)
+            foreach (CreatePhoneNumberDto item in user.Phones)
             {
                 item.CreatedAt = DateTime.Now.ToString();
                 item.CreatedBy = authId;
                 item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
 
             }
-            foreach (AddressCreatingDto item in user.Addresses)
+            foreach (CreateAddressDto item in user.Addresses)
             {
                 item.CreatedAt = DateTime.Now.ToString();
                 item.CreatedBy = authId;
@@ -264,22 +296,27 @@ namespace AddressBook.Services
 
         }
 
-        public UserUpdatingDto UpdateUserDetailsForUpdate(UserUpdatingDto user, Guid authId)
+        ///<summary>
+        ///fetch user details for create 
+        ///</summary>
+        ///<param name="user"></param>
+        ///<param name="authId"></param>
+        public UpdateUserDto UpdateUserDetailsForUpdate(UpdateUserDto user, Guid authId)
         {
-            foreach (EmailUpdatingDto item in user.Emails)
+            foreach (UpdateEmailDto item in user.Emails)
             {
                 item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
                 item.UpdatedAt = DateTime.Now.ToString();
                 item.UpdatedBy = authId;
             }
-            foreach (PhoneNumberUpdatingDto item in user.Phones)
+            foreach (UpdatePhoneNumberDto item in user.Phones)
             {
                 item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
                 item.UpdatedAt = DateTime.Now.ToString();
                 item.UpdatedBy = authId;
 
             }
-            foreach (AddressUpdatingDto item in user.Addresses)
+            foreach (UpdateAddressDto item in user.Addresses)
             {
                 item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
                 item.Country = (_userRepository.TypeFinder(item.Country)).Id.ToString();

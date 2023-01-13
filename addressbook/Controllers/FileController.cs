@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using AddressBook.Entities.ResponseTypes;
 using Swashbuckle.AspNetCore.Annotations;
 using AddressBook.Entities.Dtos;
@@ -35,7 +34,7 @@ namespace AddressBook.Controllers
         ///Upload User Image
         ///</summary>
         ///<remarks>To upload the user image in db and return image details</remarks> 
-        ///<param name="user-Id"></param> 
+        ///<param name="userId"></param> 
         ///<param name="file"></param> 
         ///<response code = "200" >Uploaded image details returned successfully</response> 
         ///<response code = "401" >Not an authorized user</response> 
@@ -49,16 +48,12 @@ namespace AddressBook.Controllers
 
         public ActionResult UploadImage([FromQuery(Name = "user-Id")] Guid userId, [FromForm] IFormFile file)
         {
-            Guid authId;
-            if (String.IsNullOrEmpty(ClaimTypes.NameIdentifier))
-             authId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)); 
-            else //while testing dummy userid
-                authId = Guid.Parse("6ebb437a-03e5-4ebf-83fa-652f548368f2");
+            Guid authId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             if (file.Length < 0)
             { _logger.LogError("file empty"); return BadRequest("file empty"); }
 
-            FileResultDto result = _fileServices.StoreImage(userId, file,authId);
+            FileResultDto result = _fileServices.StoreImage(userId, file, authId);
             _logger.LogInformation("file uploaded successfully");
             return Ok(result);
         }
@@ -67,7 +62,7 @@ namespace AddressBook.Controllers
         ///Download User Image
         ///</summary>
         ///<remarks>Download the user image by image id</remarks> 
-        ///<param name="asset-Id"></param> 
+        ///<param name="assetId"></param> 
         ///<response code = "200" >To downloaded the image successfully</response> 
         ///<response code = "401" >Not an authorized user</response> 
         ///<response code = "404" >image not found</response> 

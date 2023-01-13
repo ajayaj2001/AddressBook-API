@@ -23,118 +23,77 @@ namespace AddressBook.DbContexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //user data
-            modelBuilder.Entity<User>().HasData(new User()
-            {
-                Id = Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"),
-                FirstName = "Ajay",
-                LastName = "Kumar",
-                UserName = "Ajay Kumar",
-                Password = "12345werWER@",
-                CreatedBy = Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"),
-                CreatedAt = DateTime.Now.ToString(),
-                UpdatedAt = "",
-            },
-            new User()
-            {
-                Id = Guid.Parse("5fad8d04-6126-47f8-bac7-409c0cee5425"),
-                FirstName = "Ram",
-                LastName = "Kumar",
-                Password = "12345werWER@",
-                UserName = "Ram Kumar",
-                CreatedBy = Guid.Parse("5fad8d04-6126-47f8-bac7-409c0cee5425"),
-                CreatedAt = DateTime.Now.ToString(),
-                UpdatedAt = "",
-            }
+            string addressBookPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\AddressBook.csv";
+            string[] userValues = File.ReadAllText(addressBookPath).Split('\n');
 
-            );
-
-            //address data
-            modelBuilder.Entity<Address>().HasData(
-                new Address()
+            foreach (string item in userValues)
+            {
+                if (!string.IsNullOrEmpty(item))
                 {
-                    UserId = Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"),
-                    Id = Guid.Parse("616b9e80-7d3f-476f-b3a6-3b2c8bbccaad"),
-                    Line1 = "psna college",
-                    Line2 = "psna nagar",
-                    City = "dindigul",
-                    StateName = "tamilnadu",
-                    TypeId = Guid.Parse("8d25536f-8683-4740-a39c-fbedfbab8005"),
-                    Country = Guid.Parse("94626cde-4f4c-43ec-b5ef-83a148ffb5e5"),
-                    Zipcode = "625422",
-                    CreatedBy = Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"),
-                    CreatedAt = DateTime.Now.ToString(),
-                    UpdatedAt = "",
-                },
-            new Address()
-            {
-                UserId = Guid.Parse("5fad8d04-6126-47f8-bac7-409c0cee5425"),
-                Id = Guid.Parse("9ef2a16e-f3c7-4892-ae22-948fc2345ff4"),
-                Line1 = "anna nagar",
-                Line2 = "aruppukottai",
-                City = "virudhunagar",
-                StateName = "tamilnadu",
-                TypeId = Guid.Parse("8d25536f-8683-4740-a39c-fbedfbab8005"),
-                Country = Guid.Parse("94626cde-4f4c-43ec-b5ef-83a148ffb5e5"),
-                Zipcode = "626101",
-                CreatedBy = Guid.Parse("5fad8d04-6126-47f8-bac7-409c0cee5425"),
-                CreatedAt = DateTime.Now.ToString(),
-                UpdatedAt = "",
+                    string[] row = item.Split(",");
+                    User user = new User()
+                    {
+                        Id = Guid.Parse(row[0].ToString()),
+                        FirstName = row[1],
+                        LastName = row[2],
+                        UserName = row[3],
+                        Password = row[4],
+                        CreatedBy = Guid.Parse(row[5].ToString()),
+                        CreatedAt = row[6],
+                        UpdatedAt = "",
+                    };
+                    
 
+                    Address address = new Address()
+                    {
+                        UserId = Guid.Parse(row[8].ToString()),
+                        Id = Guid.Parse(row[7].ToString()),
+                        Line1 = row[9],
+                        Line2 = row[10],
+                        City = row[11],
+                        StateName = row[12],
+                        TypeId = Guid.Parse(row[13].ToString()),
+                        Country = Guid.Parse(row[14].ToString()),
+                        Zipcode = row[15],
+                        CreatedBy = Guid.Parse(row[16].ToString()),
+                        CreatedAt = row[17],
+                        UpdatedAt = "",
+                    };
+                   
+
+                   Phone phone= new Phone()
+                    {
+                        UserId = Guid.Parse(row[19].ToString()),
+                        Id = Guid.Parse(row[18].ToString()),
+                        PhoneNumber = row[20],
+                        TypeId = Guid.Parse(row[21].ToString()),
+                        CreatedBy = Guid.Parse(row[22].ToString()),
+                        CreatedAt = row[23],
+                        UpdatedAt = "",
+                    };
+
+                   Email email= new Email()
+                    {
+                        UserId = Guid.Parse(row[25].ToString()),
+                        Id = Guid.Parse(row[24].ToString()),
+                        EmailAddress = row[26],
+                        TypeId = Guid.Parse(row[27].ToString()),
+                        CreatedBy = Guid.Parse(row[28].ToString()),
+                        CreatedAt = row[29],
+                        UpdatedAt = "",
+                    };
+
+                    modelBuilder.Entity<Address>().HasData(address);
+                    modelBuilder.Entity<Email>().HasData(email);
+                    modelBuilder.Entity<Phone>().HasData(phone);
+                    modelBuilder.Entity<User>().HasData(user);
+
+                }
             }
-            );
-
-            //ph number data
-            modelBuilder.Entity<Phone>().HasData(new Phone()
-            {
-                UserId = Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"),
-                Id = Guid.Parse("65ec5717-5626-442a-afb5-532caedeab32"),
-                PhoneNumber = "7397142913",
-                TypeId = Guid.Parse("8d25536f-8683-4740-a39c-fbedfbab8005"),
-                CreatedBy = Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"),
-                CreatedAt = DateTime.Now.ToString(),
-                UpdatedAt = "",
-            },
-            new Phone()
-            {
-                UserId = Guid.Parse("5fad8d04-6126-47f8-bac7-409c0cee5425"),
-                Id = Guid.Parse("59a2a070-d4c2-4cc4-b623-11340c25d883"),
-                PhoneNumber = "8189900410",
-                TypeId = Guid.Parse("8d25536f-8683-4740-a39c-fbedfbab8005"),
-                CreatedBy = Guid.Parse("5fad8d04-6126-47f8-bac7-409c0cee5425"),
-                CreatedAt = DateTime.Now.ToString(),
-                UpdatedAt = "",
-
-            }
-            );
-
-            //email data
-            modelBuilder.Entity<Email>().HasData(new Email()
-            {
-                UserId = Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"),
-                Id = Guid.Parse("e33b64fe-7f35-484e-961b-f23ba51cd742"),
-                EmailAddress = "admin@ajay.live",
-                TypeId = Guid.Parse("8d25536f-8683-4740-a39c-fbedfbab8005"),
-                CreatedBy = Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"),
-                CreatedAt = DateTime.Now.ToString(),
-                UpdatedAt = "",
-
-            },
-            new Email()
-            {
-                UserId = Guid.Parse("5fad8d04-6126-47f8-bac7-409c0cee5425"),
-                Id = Guid.Parse("69ae7ec4-2765-46bb-a7d7-82fb69115beb"),
-                EmailAddress = "support@ajay.live",
-                TypeId = Guid.Parse("8d25536f-8683-4740-a39c-fbedfbab8005"),
-                CreatedBy = Guid.Parse("5fad8d04-6126-47f8-bac7-409c0cee5425"),
-                CreatedAt = DateTime.Now.ToString(),
-                UpdatedAt = "",
-
-            });
 
             modelBuilder.Entity<Asset>().Property(b => b.File).HasColumnType("varchar(max)");
 
-            string RefSetPath = @"F:\work\project\training\Address Book\addressbook\DbContext\MetaData\RefSet.csv";
+            string RefSetPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\RefSet.csv";
             string[] RefSetValues = File.ReadAllText(RefSetPath).Split('\n');
             foreach (string item in RefSetValues)
             {
@@ -145,7 +104,10 @@ namespace AddressBook.DbContexts
                     {
                         Id = Guid.Parse(row[0].ToString()),
                         Key = row[1],
-                        Description = row[2]
+                        Description = row[2],
+                        CreatedBy = Guid.Parse(row[3].ToString()),
+                        CreatedAt = row[4],
+                        
                     };
                     modelBuilder.Entity<RefSet>().HasData(refSet);
                 }
@@ -153,7 +115,7 @@ namespace AddressBook.DbContexts
             }
 
             //refTerm
-            string RefTermPath = @"F:\work\project\training\Address Book\addressbook\DbContext\MetaData\RefTerm.csv";
+            string RefTermPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\RefTerm.csv";
             string[] RefTermValues = File.ReadAllText(RefTermPath).Split('\n');
             foreach (string item in RefTermValues)
             {
@@ -162,16 +124,18 @@ namespace AddressBook.DbContexts
                     string[] row = item.Split(",");
                     RefTerm refTerm = new RefTerm()
                     {
-                        RefTermId = Guid.Parse(row[0].ToString()),
+                        Id = Guid.Parse(row[0].ToString()),
                         Key = row[1],
-                        Description = row[2]
+                        Description = row[2],
+                        CreatedBy = Guid.Parse(row[3].ToString()),
+                        CreatedAt = row[4],
                     };
                     modelBuilder.Entity<RefTerm>().HasData(refTerm);
                 }
             }
 
             //setRefTerm
-            string SetRefTermPath = @"F:\work\project\training\Address Book\addressbook\DbContext\MetaData\SetRefTerm.csv";
+            string SetRefTermPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\SetRefTerm.csv";
             string[] SetRefTermValues = File.ReadAllText(SetRefTermPath).Split('\n');
             foreach (string item in SetRefTermValues)
             {
@@ -182,7 +146,9 @@ namespace AddressBook.DbContexts
                     {
                         RefTermId = Guid.Parse(row[0].ToString()),
                         RefSetId = Guid.Parse(row[1].ToString()),
-                        SetRefTermId = Guid.Parse(row[2].ToString()),
+                        Id = Guid.Parse(row[2].ToString()),
+                        CreatedBy = Guid.Parse(row[3].ToString()),
+                        CreatedAt = row[4],
                     };
                     modelBuilder.Entity<SetRefTerm>().HasData(setRefTerm);
                 }

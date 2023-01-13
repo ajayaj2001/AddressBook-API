@@ -1,11 +1,13 @@
-﻿namespace AddressBook.Entities.Dtos
+﻿using System;
+
+namespace AddressBook.Entities.Dtos
 {
-    public class AddressCreatingDto : BaseDto
+    public class UpdateAddressDto : BaseDto
     {
         ///<summary>
-        ///address type
+        ///unique id of field
         ///</summary>
-        public string Type { get; set; }
+        public Guid Id { get; set; }
 
         ///<summary>
         ///address line 1 of user
@@ -28,13 +30,19 @@
         public string StateName { get; set; }
 
         ///<summary>
+        ///address zipcode of user
+        ///</summary>
+        public string Zipcode { get; set; }
+
+        ///<summary>
+        ///address type
+        ///</summary>
+        public string Type { get; set; }
+
+        ///<summary>
         ///address country of user
         ///</summary>
         public string Country { get; set; }
 
-        ///<summary>
-        ///address zipcode of user
-        ///</summary>
-        public string Zipcode { get; set; }
     }
 }
