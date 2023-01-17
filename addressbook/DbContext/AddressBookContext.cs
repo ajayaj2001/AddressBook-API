@@ -93,29 +93,8 @@ namespace AddressBook.DbContexts
 
             modelBuilder.Entity<Asset>().Property(b => b.File).HasColumnType("varchar(max)");
 
-            string RefSetPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\RefSet.csv";
-            string[] RefSetValues = File.ReadAllText(RefSetPath).Split('\n');
-            foreach (string item in RefSetValues)
-            {
-                if (!string.IsNullOrEmpty(item))
-                {
-                    string[] row = item.Split(",");
-                    RefSet refSet = new RefSet()
-                    {
-                        Id = Guid.Parse(row[0].ToString()),
-                        Key = row[1],
-                        Description = row[2],
-                        CreatedBy = Guid.Parse(row[3].ToString()),
-                        CreatedAt = row[4],
-                        
-                    };
-                    modelBuilder.Entity<RefSet>().HasData(refSet);
-                }
-
-            }
-
-            //refTerm
-            string RefTermPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\RefTerm.csv";
+            //ref term
+            string RefTermPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\RefSet.csv";
             string[] RefTermValues = File.ReadAllText(RefTermPath).Split('\n');
             foreach (string item in RefTermValues)
             {
@@ -129,8 +108,30 @@ namespace AddressBook.DbContexts
                         Description = row[2],
                         CreatedBy = Guid.Parse(row[3].ToString()),
                         CreatedAt = row[4],
+                        
                     };
                     modelBuilder.Entity<RefTerm>().HasData(refTerm);
+                }
+
+            }
+
+            //refSet
+            string RefSetPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\RefTerm.csv";
+            string[] RefSetValues = File.ReadAllText(RefSetPath).Split('\n');
+            foreach (string item in RefSetValues)
+            {
+                if (!string.IsNullOrEmpty(item))
+                {
+                    string[] row = item.Split(",");
+                    RefSet refSet = new RefSet()
+                    {
+                        Id = Guid.Parse(row[0].ToString()),
+                        Key = row[1],
+                        Description = row[2],
+                        CreatedBy = Guid.Parse(row[3].ToString()),
+                        CreatedAt = row[4],
+                    };
+                    modelBuilder.Entity<RefSet>().HasData(refSet);
                 }
             }
 
@@ -144,8 +145,8 @@ namespace AddressBook.DbContexts
                     string[] row = item.Split(",");
                     SetRefTerm setRefTerm = new SetRefTerm()
                     {
-                        RefTermId = Guid.Parse(row[0].ToString()),
-                        RefSetId = Guid.Parse(row[1].ToString()),
+                        RefSetId = Guid.Parse(row[0].ToString()),
+                        RefTermId = Guid.Parse(row[1].ToString()),
                         Id = Guid.Parse(row[2].ToString()),
                         CreatedBy = Guid.Parse(row[3].ToString()),
                         CreatedAt = row[4],

@@ -32,9 +32,6 @@ namespace AddressBook.Services
         ///<param name="user"></param>
         public Guid CreateUser(CreateUserDto user, Guid authId)
         {
-            if (authId == null)
-                throw new Exception("empty auth");
-
             User userResult = _mapper.Map<User>(user);
             userResult.CreatedAt = DateTime.Now.ToString();
             userResult.CreatedBy = authId;
@@ -84,6 +81,23 @@ namespace AddressBook.Services
             user.Assets = _userRepository.GetAssetIds(user.Id).ToList();
 
             return _mapper.Map<UserDto>(user);
+        }
+
+        ///<summary>
+        ///get user by user id
+        ///</summary>
+        ///<param name="userId"></param>
+        public User GetUserById(Guid userId)
+        {
+            return _userRepository.GetUserById(userId);
+        }
+
+        ///<summary>
+        ///fetch all user from database
+        ///</summary>
+        public IEnumerable<User> GetAllUsers()
+        {
+            return _userRepository.GetAllUsers();
         }
 
         ///<summary>
@@ -270,7 +284,7 @@ namespace AddressBook.Services
         ///</summary>
         ///<param name="user"></param>
         ///<param name="authId"></param>
-        public CreateUserDto UpdateUserDetailsForCreate(CreateUserDto user, Guid authId)
+        public CreateUserDto FetchUserDetailsForCreate(CreateUserDto user, Guid authId)
         {
             foreach (CreateEmailDto item in user.Emails)
             {
@@ -283,7 +297,6 @@ namespace AddressBook.Services
                 item.CreatedAt = DateTime.Now.ToString();
                 item.CreatedBy = authId;
                 item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
-
             }
             foreach (CreateAddressDto item in user.Addresses)
             {
@@ -293,7 +306,6 @@ namespace AddressBook.Services
                 item.Country = (_userRepository.TypeFinder(item.Country)).Id.ToString();
             }
             return user;
-
         }
 
         ///<summary>
@@ -301,7 +313,7 @@ namespace AddressBook.Services
         ///</summary>
         ///<param name="user"></param>
         ///<param name="authId"></param>
-        public UpdateUserDto UpdateUserDetailsForUpdate(UpdateUserDto user, Guid authId)
+        public UpdateUserDto FetchUserDetailsForUpdate(UpdateUserDto user, Guid authId)
         {
             foreach (UpdateEmailDto item in user.Emails)
             {

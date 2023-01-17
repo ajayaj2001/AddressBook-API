@@ -29,7 +29,7 @@ namespace AddressBook.Repositories
         ///<param name="id"></param>
         public Asset RetriveImage(Guid id)
         {
-            Asset image = _context.Assets.FirstOrDefault(b => b.Id == id);
+            Asset image = _context.Assets.Where(a=>a.Id==id).FirstOrDefault(); //(b => b.Id == id);
             if (image == null)
                 return null;
 

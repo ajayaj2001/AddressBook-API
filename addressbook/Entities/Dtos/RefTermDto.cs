@@ -2,7 +2,7 @@
 
 namespace AddressBook.Entities.Dtos
 {
-    public class RefSetDto 
+    public class RefTermDto 
     {
         ///<summary>
         ///unique id of field
@@ -10,12 +10,12 @@ namespace AddressBook.Entities.Dtos
         public Guid Id { get; set; }
 
         ///<summary>
-        ///ref set name 
+        ///ref term name 
         ///</summary>
         public string Key { get; set; }
 
         ///<summary>
-        ///ref set description 
+        ///ref term description 
         ///</summary>
         public string Description { get; set; }
     }

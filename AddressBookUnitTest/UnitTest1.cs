@@ -19,13 +19,8 @@ using System.IO;
 using Xunit;
 using System.Linq;
 using AddressBookUnitTest.DbContext;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Data.SqlClient;
-using System.Drawing;
-using System.Globalization;
 using Moq;
 using System.Security.Claims;
-using AddressBook.Entities.Models;
 
 namespace AddressBookUnitTest
 {
@@ -82,14 +77,14 @@ namespace AddressBookUnitTest
             _authRepository = new AuthRepository(_context);
             _metaDataRepository = new MetaDataRepository(_context);
             _fileRepository = new FileRepository(_context);
-            _authService = new AuthService(_configuration);
+            _authService = new AuthService(_configuration,_authRepository);
             _addressBookServices = new UserService(_mapper, _addressBookRepository, _logger);
             _metadataService = new MetaDataService(_mapper, _metaDataRepository);
             _fileService = new FileService(_mapper, _addressBookRepository, _fileRepository);
-            _addresBookController = new UserController(_addressBookRepository, _addressBookServices, _logger);
+            _addresBookController = new UserController(_addressBookServices, _logger);
             _metaDataController = new MetadataController(_metadataService, _logger);
-            _authController = new AuthController(_authRepository, _authService, _logger);
-            _fileController = new FileController(_fileRepository, _fileService, _logger);
+            _authController = new AuthController(_authService, _logger);
+            _fileController = new FileController(_fileService, _logger);
 
             var userId = "7cf56f52-1aab-4646-b090-d337aac18370";
             var contextMock = new Mock<HttpContext>();
@@ -128,7 +123,7 @@ namespace AddressBookUnitTest
 
             Guid userId2 = Guid.Parse("5fad8d04-6126-47f8-bac7-409c0cee5466");
             ActionResult response2 = _addresBookController.GetAddressBookById(userId2) as ActionResult;
-            Assert.IsType<NotFoundResult>(response2);
+            Assert.IsType<NotFoundObjectResult>(response2);
         }
 
         /// <summary>
@@ -290,7 +285,7 @@ namespace AddressBookUnitTest
 
             OkObjectResult item = response as OkObjectResult;
             ResultMetaData list = item.Value as ResultMetaData;
-            Assert.Equal("PERSONAL", list.RefSetList[0].Key);
+            Assert.Equal("PERSONAL", list.RefTermList[0].Key);
 
             string key2 = "NAME_TYPE";
             ActionResult response2 = _metaDataController.FetchMetaData(key2) as ActionResult;
@@ -321,7 +316,7 @@ namespace AddressBookUnitTest
         ///  To test the download image
         /// </summary>
         [Fact]
-        public void Download_FieContentResult()
+        public void Download_FileContentResult()
         {
             Guid assetId = new Guid("876072b6-04e4-4577-b21c-946e96bef643");
             var response = _fileController.DownloadImage(assetId);
@@ -329,7 +324,7 @@ namespace AddressBookUnitTest
 
             Guid assetId2 = new Guid("555072b6-04e4-4577-b21c-946e96bef643");
             var response2 = _fileController.DownloadImage(assetId2);
-            Assert.IsType<NotFoundResult>(response2);
+            Assert.IsType<NotFoundObjectResult>(response2);
         }
 
 
@@ -348,9 +343,7 @@ namespace AddressBookUnitTest
 
             Guid userId2 = Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370");
             ActionResult response2 = _addresBookController.DeleteAddressBook(userId2) as ActionResult;
-            Assert.IsType<NotFoundResult>(response2);
+            Assert.IsType<NotFoundObjectResult>(response2);
         }
-
-
     }
 }

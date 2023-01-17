@@ -29,7 +29,9 @@ namespace AddressBook.Profiles
             CreateMap<CreateAddressDto, Address>().ForMember(
                 dest => dest.Country,
                 opt => opt.MapFrom(src => (Guid.Parse(src.Country)))
-            ).ReverseMap();
+            ).ForMember(
+                dest => dest.TypeId,
+                opt => opt.MapFrom(src => (Guid.Parse(src.Type)))).ReverseMap();
             CreateMap<UpdateAddressDto, Address>().ForMember(
                 dest => dest.Country,
                 opt => opt.MapFrom(src => (Guid.Parse(src.Country)))
@@ -55,7 +57,8 @@ namespace AddressBook.Profiles
             CreateMap<ResultAssetDto, Asset>().ReverseMap();
 
             //Refset
-            CreateMap<RefSetDto, RefSet>().ReverseMap();          
+            CreateMap<RefTermDto, RefSet>().ReverseMap();
+            CreateMap<RefTermDto, RefTerm>().ReverseMap();
 
         }
     }

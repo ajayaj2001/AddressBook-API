@@ -40,6 +40,19 @@ namespace AddressBook.Contracts
         void DeleteAddressBook(User user);
 
         ///<summary>
+        ///get user by user id
+        ///</summary>
+        ///<param name="userId"></param>
+        User GetUserById(Guid userId);
+
+
+        ///<summary>
+        ///fetch all user from database
+        ///</summary>
+        IEnumerable<User> GetAllUsers();
+
+
+        ///<summary>
         ///update address book details
         ///</summary>
         ///<param name="authId"></param>
@@ -52,7 +65,7 @@ namespace AddressBook.Contracts
         ///validate user input in create user 
         ///</summary>
         ///<param name="user"></param>
-        CreateUserDto UpdateUserDetailsForCreate(CreateUserDto user, Guid authId);
+        CreateUserDto FetchUserDetailsForCreate(CreateUserDto user, Guid authId);
 
         ///<summary>
         ///validate user input in update user 
@@ -73,7 +86,7 @@ namespace AddressBook.Contracts
         ///</summary>
         ///<param name="user"></param>
         ///<param name="authId"></param>
-        UpdateUserDto UpdateUserDetailsForUpdate(UpdateUserDto user, Guid authId);
+        UpdateUserDto FetchUserDetailsForUpdate(UpdateUserDto user, Guid authId);
 
        
     }

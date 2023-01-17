@@ -37,7 +37,7 @@ namespace AddressBook.Controllers
         [Authorize]
         [HttpGet("{key}")]
         [SwaggerOperation(Summary = "Get Metadata Types", Description = "To get the metadata list like Address Type etc.")]
-        [SwaggerResponse(200, "Success", typeof(ICollection<RefSetDto>))]
+        [SwaggerResponse(200, "Success", typeof(ICollection<RefTermDto>))]
         [SwaggerResponse(401, "Unauthorized", typeof(ErrorResponse))]
         [SwaggerResponse(404, "Not Found", typeof(ErrorResponse))]
         [SwaggerResponse(500, "Internal server error", typeof(ErrorResponse))]
@@ -47,7 +47,10 @@ namespace AddressBook.Controllers
             _logger.LogInformation("meta data returned successfully");
 
             if (value.Key == null)
-            { _logger.LogError("meta data not found"); return NotFound("meta data not found"); }
+            {
+                _logger.LogError("meta data not found");
+                return NotFound(new ErrorResponse { errorCode = 404, errorMessage = "meta data not found", errorType = "meta-data" });
+            }
             return Ok(value);
 
         }

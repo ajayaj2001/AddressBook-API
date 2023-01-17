@@ -11,18 +11,18 @@ namespace AddressBook.Repositories
         ///</summary>
         ///<param name="items"></param>
         
-        IEnumerable<RefSet> GetRefSet(IEnumerable<Guid> items);
+        IEnumerable<RefTerm> GetRefTerm(IEnumerable<Guid> items);
         //<summary>
         ///get all ref set group in db
         ///</summary>
         ///<param name="id"></param>
     
-        IEnumerable<Guid> GetRefSetGroup(Guid id);
+        IEnumerable<Guid> GetRefTermGroup(Guid id);
 
         ///<summary>
         ///get ref term by name
         ///</summary>
         ///<param name="name"></param>
-        RefTerm GetRefTerm(string name);
+        RefSet GetRefSet(string name);
     }
 }

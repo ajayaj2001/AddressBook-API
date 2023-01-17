@@ -5,6 +5,11 @@
         ///<summary>
         /// detailed error message 
         ///</summary>
+     
         public string errorMessage { get; set; } 
+
+        public int errorCode { get; set; }
+
+        public string errorType { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AddressBook.Entities.Models
@@ -8,7 +9,7 @@ namespace AddressBook.Entities.Models
         ///<summary>
         /// address type 
         ///</summary>
-        [ForeignKey("Type")]
+        [ForeignKey("TypeId")]
         public Guid TypeId { get; set; }
 
         ///<summary>

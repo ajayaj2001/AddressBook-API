@@ -6,15 +6,18 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AddressBook.Repositories;
 
 namespace AddressBook.Services
 {
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _config;
+        private readonly IAuthRepository _authRepository;
 
-        public AuthService(IConfiguration config)
+        public AuthService(IConfiguration config, IAuthRepository authRepositary)
         {
+            _authRepository = authRepositary ?? throw new ArgumentNullException(nameof(authRepositary));
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
@@ -49,6 +52,15 @@ namespace AddressBook.Services
         public bool ComparePassword(string userPass, string dbPass)
         {
             return userPass == dbPass ? true : false;
+        }
+
+        ///<summary>
+        ///get user by user name
+        ///</summary>
+        ///<param name="userName"></param>
+        public User GetUserByUserName(string userName)
+        {
+            return _authRepository.GetUserByUserName(userName);
         }
 
     }

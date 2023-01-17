@@ -5,13 +5,13 @@ namespace AddressBook.Entities.Models
 {
     public class RefTerm : BaseModel
     {
-        
-
+       
         ///<summary>
-        ///ref term name
+        ///name of ref term
         ///</summary>
         [Required]
         public string Key { get; set; }
+
 
         ///<summary>
         ///description of ref term

@@ -10,7 +10,6 @@ using Swashbuckle.AspNetCore.Annotations;
 using AddressBook.Contracts;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
-using AddressBook.Repositories;
 
 namespace AddressBook.Controllers
 {
@@ -18,13 +17,11 @@ namespace AddressBook.Controllers
     [Route("api/")]
     public class UserController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
         private readonly IUserService _userServices;
         private readonly ILogger _logger;
 
-        public UserController(IUserRepository UserRepositary, IUserService userServices, ILogger logger)
+        public UserController(IUserService userServices, ILogger logger)
         {
-            _userRepository = UserRepositary ?? throw new ArgumentNullException(nameof(UserRepositary));
             _userServices = userServices ?? throw new ArgumentNullException(nameof(userServices));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -54,14 +51,14 @@ namespace AddressBook.Controllers
             ValidateInputResponse validate= _userServices.ValidateUserInputCreate(user);
             if (validate.errorCode == 404)
             {
-                return NotFound(validate.errorMessage);
+                return NotFound(new ErrorResponse { errorCode=validate.errorCode,errorMessage=validate.errorMessage,errorType="create-addressbook"});
             }else if(validate.errorCode == 409)
             {
-                return Conflict(validate.errorMessage);
+                return Conflict(new ErrorResponse { errorCode = validate.errorCode, errorMessage = validate.errorMessage, errorType = "create-addressbook" });
             }
             else
             {
-                CreateUserDto updatedUser = _userServices.UpdateUserDetailsForCreate(user,authId);
+                CreateUserDto updatedUser = _userServices.FetchUserDetailsForCreate(user,authId);
                 _logger.LogInformation("new user created successfully");
                 return Ok(_userServices.CreateUser(updatedUser, authId));
             }
@@ -86,7 +83,7 @@ namespace AddressBook.Controllers
         [SwaggerResponse(401, "Unauthorized", typeof(ErrorResponse))]
         [SwaggerResponse(404, "Not Found", typeof(ErrorResponse))]
         [SwaggerResponse(500, "Internal server error", typeof(ErrorResponse))]
-        public IActionResult GetAllAddressBook(int size=10,int pageNo=1,string sortBy="",string sortOrder="")
+        public IActionResult GetAllAddressBook(int size=10, [FromQuery(Name = "page-no")] int pageNo=1, [FromQuery(Name = "sort-by")] string sortBy="", [FromQuery(Name = "sort-order")] string sortOrder="")
         {
             PageSortParam pageSortParam = new PageSortParam() { Size=size,PageNo=pageNo,SortBy=sortBy };
             if (sortOrder == "ASC")
@@ -98,7 +95,7 @@ namespace AddressBook.Controllers
             if (users == null)
             {
                 _logger.LogError("User Not Found");
-                return new NotFoundResult();
+                return NotFound(new ErrorResponse { errorCode=404,errorMessage= "User Not Found",errorType="get-users" });
             }
             _logger.LogInformation("returned all address book");
             return Ok(_userServices.FetchAddressBookDetail(users));
@@ -120,7 +117,7 @@ namespace AddressBook.Controllers
 
         public IActionResult GetAddressBookCount()
         {
-            int count = _userRepository.GetAllUsers().Count();
+            int count = _userServices.GetAllUsers().Count();
             _logger.LogInformation("returned address book count");
             return Ok(new CountSuccessResponse() { count = count });
         }
@@ -143,11 +140,11 @@ namespace AddressBook.Controllers
         [SwaggerResponse(500, "Internal server error", typeof(ErrorResponse))]
         public IActionResult GetAddressBookById(Guid id)
         {
-            User foundUser = _userRepository.GetUserById(id);
+            User foundUser = _userServices.GetUserById(id);
             if (foundUser == null)
             {
                 _logger.LogError("user not found");
-                return NotFound();
+                return NotFound(new ErrorResponse { errorCode=404,errorMessage="user not found",errorType="get-addressbook"});
             }
             _logger.LogInformation("returned individual address book ");
             return Ok(_userServices.FetchSingleAddressBookDetail(foundUser));
@@ -171,11 +168,11 @@ namespace AddressBook.Controllers
         [SwaggerResponse(500, "Internal server error", typeof(ErrorResponse))]
         public IActionResult DeleteAddressBook(Guid id)
         {
-            User userFromRepo = _userRepository.GetUserById(id);
+            User userFromRepo = _userServices.GetUserById(id);
             if (userFromRepo == null)
             {
                 _logger.LogError("user not found");
-                return NotFound();
+                return NotFound(new ErrorResponse { errorCode=404,errorMessage="user not found",errorType="delete-addressbook"});
             }
             _userServices.DeleteAddressBook(userFromRepo);
             _logger.LogInformation("Address book deleted successfully");
@@ -206,7 +203,7 @@ namespace AddressBook.Controllers
             
             Guid  authId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            User userFromRepo = _userRepository.GetUserById(id);
+            User userFromRepo = _userServices.GetUserById(id);
             if (userFromRepo == null)
             {
                 _logger.LogError("user not found");
@@ -216,15 +213,15 @@ namespace AddressBook.Controllers
             ValidateInputResponse validate = _userServices.ValidateUserInputUpdate(user,id);
             if (validate.errorCode == 404)
             {
-                return NotFound(validate.errorMessage);
+                return NotFound(new ErrorResponse { errorCode = validate.errorCode, errorMessage = validate.errorMessage, errorType = "update-addressbook" });
             }
             else if (validate.errorCode == 409)
             {
-                return Conflict(validate.errorMessage);
+                return Conflict(new ErrorResponse { errorCode = validate.errorCode, errorMessage = validate.errorMessage, errorType = "update-addressbook" });
             }
             else
             {
-                UpdateUserDto updatedUser = _userServices.UpdateUserDetailsForUpdate(user, authId);
+                UpdateUserDto updatedUser = _userServices.FetchUserDetailsForUpdate(user, authId);
                 _userServices.UpdateAddressBook(id, updatedUser, userFromRepo, authId);
                 _logger.LogInformation("Addresstype updated successfully");
                 return Ok("updated");

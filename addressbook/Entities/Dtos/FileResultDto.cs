@@ -16,13 +16,7 @@ namespace AddressBook.Entities.Dtos
         ///</summary>
         [JsonProperty(PropertyName = "file_name")]
         public string FileName { get; set; }
-
-        ///<summary>
-        ///file type of user image
-        ///</summary>
-        [JsonProperty(PropertyName = "file_type")]
-        public string FileType { get; set; }
-
+     
         ///<summary>
         ///size of user image
         ///</summary>

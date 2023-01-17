@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 
 namespace AddressBook.Entities.Dtos

@@ -2,7 +2,7 @@
 
 namespace AddressBook.Migrations
 {
-    public partial class updated33 : Migration
+    public partial class udpateaddressmode2 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

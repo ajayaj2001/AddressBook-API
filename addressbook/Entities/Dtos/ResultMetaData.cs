@@ -1,14 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System;
-using AddressBook.Entities.Models;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json;
 
 namespace AddressBook.Entities.Dtos
 {
     public class ResultMetaData
     {
         [Key]
-        public Guid RefTermId { get; set; }
+        public Guid Id { get; set; }
 
         ///<summary>
         ///ref term name
@@ -21,10 +22,11 @@ namespace AddressBook.Entities.Dtos
         ///</summary>
         public string Description { get; set; }
 
+        [JsonProperty(PropertyName = "ref_term_list")]
         ///<summary>
         ///list of ref sets
         ///</summary>
-        public List<RefSetDto> RefSetList { get; set; } = new List<RefSetDto>();
+        public List<RefTermDto> RefTermList { get; set; } = new List<RefTermDto>();
 
     }
 }

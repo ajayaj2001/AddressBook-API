@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System;
 
 namespace AddressBook.Entities.Models
 {
@@ -7,15 +6,16 @@ namespace AddressBook.Entities.Models
     {
 
         ///<summary>
-        ///name of ref set
+        ///ref set name
         ///</summary>
         [Required]
         public string Key { get; set; }
-
 
         ///<summary>
         ///description of ref set
         ///</summary>
         public string Description { get; set; }
+
+
     }
 }

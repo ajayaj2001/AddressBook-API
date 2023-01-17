@@ -27,17 +27,17 @@ namespace AddressBook.Services
         ///<param name="keyword"></param>
         public ResultMetaData FetchMetaData(string keyword)
         {
-            RefTerm RefTermFromRepo = _metaDataRepository.GetRefTerm(keyword);
-            if (RefTermFromRepo != null)
+            RefSet RefSetFromRepo = _metaDataRepository.GetRefSet(keyword);
+            if (RefSetFromRepo != null)
             {
-                IEnumerable<Guid> ResultFromRepo = _metaDataRepository.GetRefSetGroup(RefTermFromRepo.Id);
-                IEnumerable<RefSet> RefSetFromRepo = _metaDataRepository.GetRefSet(ResultFromRepo);
-                IEnumerable<RefSetDto> value = _mapper.Map<IEnumerable<RefSetDto>>(RefSetFromRepo);
+                IEnumerable<Guid> ResultFromRepo = _metaDataRepository.GetRefTermGroup(RefSetFromRepo.Id);
+                IEnumerable<RefTerm> RefTermFromRepo = _metaDataRepository.GetRefTerm(ResultFromRepo);
+                IEnumerable<RefTermDto> value = _mapper.Map<IEnumerable<RefTermDto>>(RefTermFromRepo);
                 ResultMetaData metaData = new ResultMetaData();
-                metaData.Description = RefTermFromRepo.Description;
-                metaData.RefTermId = RefTermFromRepo.Id;
-                metaData.Key = RefTermFromRepo.Key;
-                metaData.RefSetList = value.ToList();
+                metaData.Description = RefSetFromRepo.Description;
+                metaData.Id = RefSetFromRepo.Id;
+                metaData.Key = RefSetFromRepo.Key;
+                metaData.RefTermList = value.ToList();
                 return metaData;
             }
             ResultMetaData metaData2 = new ResultMetaData();

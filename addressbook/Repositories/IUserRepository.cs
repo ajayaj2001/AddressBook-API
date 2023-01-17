@@ -10,7 +10,7 @@ namespace AddressBook.Repositories
         ///get type id by type name
         ///</summary>
         ///<param name="type"></param>
-        RefSet TypeFinder(string type);
+        RefTerm TypeFinder(string type);
 
         ///<summary>
         ///get user count

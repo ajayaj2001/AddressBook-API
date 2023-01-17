@@ -44,6 +44,10 @@ namespace AddressBook.Services
         ///<summary>
         ///store image in database
         ///</summary>
+        ///<param name="authId"></param>
+        ///<param name="file"></param>
+        ///<param name="ms"></param>
+        ///<param name="userId"></param>
         public Asset StoreImageInDb(MemoryStream ms, Guid userId, IFormFile file, Guid authId)
         {
             file.CopyTo(ms);
@@ -58,6 +62,15 @@ namespace AddressBook.Services
             _fileRepository.UploadImage(ImageEntity);
             _userRepository.Save();
             return ImageEntity;
+        }
+
+        ///<summary>
+        ///fetch asset by asset id
+        ///</summary>
+        ///<param name="assetId"></param>
+        public Asset FetchImage(Guid assetId)
+        {
+            return _fileRepository.RetriveImage(assetId);
         }
     }
 }

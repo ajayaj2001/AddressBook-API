@@ -9,5 +9,6 @@ namespace AddressBook.Repositories
         ///</summary>
         ///<param name="email"></param>
         User GetUserByUserName(string email);
+
     }
 }

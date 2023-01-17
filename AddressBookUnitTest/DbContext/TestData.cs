@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection.Emit;
 
 namespace AddressBookUnitTest.DbContext
 {
@@ -89,7 +90,30 @@ namespace AddressBookUnitTest.DbContext
                 }
             }
 
-            string RefSetPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\RefSet.csv";
+
+            //ref term
+            string RefTermPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\RefSet.csv";
+            string[] RefTermValues = File.ReadAllText(RefTermPath).Split('\n');
+            foreach (string item in RefTermValues)
+            {
+                if (!string.IsNullOrEmpty(item))
+                {
+                    string[] row = item.Split(",");
+                    RefTerm refTerm = new RefTerm()
+                    {
+                        Id = Guid.Parse(row[0].ToString()),
+                        Key = row[1],
+                        Description = row[2],
+                        CreatedBy = Guid.Parse(row[3].ToString()),
+                        CreatedAt = row[4],
+
+                    };
+                    context.RefTerm.Add(refTerm);
+                }
+            }
+
+            //refSet
+            string RefSetPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\RefTerm.csv";
             string[] RefSetValues = File.ReadAllText(RefSetPath).Split('\n');
             foreach (string item in RefSetValues)
             {
@@ -106,27 +130,6 @@ namespace AddressBookUnitTest.DbContext
                     };
                     context.RefSets.Add(refSet);
                 }
-
-            }
-
-            //refTerm
-            string RefTermPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\RefTerm.csv";
-            string[] RefTermValues = File.ReadAllText(RefTermPath).Split('\n');
-            foreach (string item in RefTermValues)
-            {
-                if (!string.IsNullOrEmpty(item))
-                {
-                    string[] row = item.Split(",");
-                    RefTerm refTerm = new RefTerm()
-                    {
-                        Id = Guid.Parse(row[0].ToString()),
-                        Key = row[1],
-                        Description = row[2],
-                        CreatedBy = Guid.Parse(row[3].ToString()),
-                        CreatedAt = row[4],
-                    };
-                    context.RefTerm.Add(refTerm);
-                }
             }
 
             //setRefTerm
@@ -139,8 +142,8 @@ namespace AddressBookUnitTest.DbContext
                     string[] row = item.Split(",");
                     SetRefTerm setRefTerm = new SetRefTerm()
                     {
-                        RefTermId = Guid.Parse(row[0].ToString()),
-                        RefSetId = Guid.Parse(row[1].ToString()),
+                        RefTermId = Guid.Parse(row[1].ToString()),
+                        RefSetId = Guid.Parse(row[0].ToString()),
                         Id = Guid.Parse(row[2].ToString()),
                         CreatedBy = Guid.Parse(row[3].ToString()),
                         CreatedAt = row[4],

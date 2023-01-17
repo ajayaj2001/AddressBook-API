@@ -66,9 +66,9 @@ namespace AddressBook.Repositories
         ///get type id by type name
         ///</summary>
         ///<param name="type"></param>
-        public RefSet TypeFinder(string type)
+        public RefTerm TypeFinder(string type)
         {
-            return _context.RefSets.FirstOrDefault(b => b.Key == type);
+            return _context.RefTerm.FirstOrDefault(b => b.Key == type);
         }
 
         ///<summary>
@@ -77,7 +77,7 @@ namespace AddressBook.Repositories
         ///<param name="type"></param>
         public bool IsMetadataExist(string type)
         {
-            return _context.RefSets.Any(a => a.Key == type);
+            return _context.RefTerm.Any(a => a.Key == type);
         }
 
 

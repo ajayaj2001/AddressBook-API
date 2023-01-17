@@ -21,36 +21,35 @@ namespace AddressBook.Repositories
         ///get all ref set group in db
         ///</summary>
         ///<param name="id"></param>
-        public IEnumerable<Guid> GetRefSetGroup(Guid id)
+        public IEnumerable<Guid> GetRefTermGroup(Guid id)
         {
             List<Guid> Group = new List<Guid>();
             foreach (SetRefTerm item in _context.SetRefTerms)
             {
-                if (item.RefTermId.Equals(id))
+                if (item.RefSetId.Equals(id))
                 {
-
-                    Group.Add(item.RefSetId);
+                    Group.Add(item.RefTermId);
                 }
             }
             return Group;
         }
         ///<summary>
-        ///get ref set by id list
+        ///get ref term by id list
         ///</summary>
         ///<param name="items"></param>
-        public IEnumerable<RefSet> GetRefSet(IEnumerable<Guid> items)
+        public IEnumerable<RefTerm> GetRefTerm(IEnumerable<Guid> items)
         {
 
-            return _context.RefSets.Where(a => items.Contains(a.Id));
+            return _context.RefTerm.Where(a => items.Contains(a.Id));
         }
 
         ///<summary>
-        ///get ref term by name
+        ///get set term by name
         ///</summary>
         ///<param name="name"></param>
-        public RefTerm GetRefTerm(string name)
+        public RefSet GetRefSet(string name)
         {
-            return _context.RefTerm.FirstOrDefault(a => a.Key == name);
+            return _context.RefSets.FirstOrDefault(a => a.Key == name);
         }
 
 
