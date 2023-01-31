@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace AddressBook.Entities.Dtos
 {
-    public class UpdateUserDto : BaseDto
+    public class UpdateUserDto
     {
         ///<summary>
         ///first name of user 

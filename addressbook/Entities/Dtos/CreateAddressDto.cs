@@ -1,6 +1,6 @@
 ﻿namespace AddressBook.Entities.Dtos
 {
-    public class CreateAddressDto : BaseDto
+    public class CreateAddressDto
     {
         ///<summary>
         ///address type

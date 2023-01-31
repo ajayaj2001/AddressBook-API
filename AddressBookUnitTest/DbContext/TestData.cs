@@ -17,10 +17,9 @@ namespace AddressBookUnitTest.DbContext
         /// <returns></returns>
         public static AddressBookContext AddData(AddressBookContext context)
         {
-
-
-            string addressBookPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\AddressBook.csv";
-            string[] userValues = File.ReadAllText(addressBookPath).Split('\n');
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string addressBookPath = Path.Combine(baseDir, @"..\..\..\DbContext\data\AddressBook.csv");
+            string[] userValues = File.ReadAllText(Path.GetFullPath(addressBookPath)).Split('\n');
 
             foreach (string item in userValues)
             {
@@ -92,8 +91,9 @@ namespace AddressBookUnitTest.DbContext
 
 
             //ref term
-            string RefTermPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\RefSet.csv";
-            string[] RefTermValues = File.ReadAllText(RefTermPath).Split('\n');
+
+            string RefTermPath = Path.Combine(baseDir, @"..\..\..\DbContext\data\RefSet.csv");
+            string[] RefTermValues = File.ReadAllText(Path.GetFullPath(RefTermPath)).Split('\n');
             foreach (string item in RefTermValues)
             {
                 if (!string.IsNullOrEmpty(item))
@@ -113,8 +113,8 @@ namespace AddressBookUnitTest.DbContext
             }
 
             //refSet
-            string RefSetPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\RefTerm.csv";
-            string[] RefSetValues = File.ReadAllText(RefSetPath).Split('\n');
+            string RefSetPath = Path.Combine(baseDir, @"..\..\..\DbContext\data\RefTerm.csv");
+            string[] RefSetValues = File.ReadAllText(Path.GetFullPath(RefSetPath)).Split('\n');
             foreach (string item in RefSetValues)
             {
                 if (!string.IsNullOrEmpty(item))
@@ -133,8 +133,8 @@ namespace AddressBookUnitTest.DbContext
             }
 
             //setRefTerm
-            string SetRefTermPath = @"F:\work\project\training\Address Book\addressbook\DbContext\data\SetRefTerm.csv";
-            string[] SetRefTermValues = File.ReadAllText(SetRefTermPath).Split('\n');
+            string SetRefTermPath = Path.Combine(baseDir, @"..\..\..\DbContext\data\SetRefTerm.csv");
+            string[] SetRefTermValues = File.ReadAllText(Path.GetFullPath(SetRefTermPath)).Split('\n');
             foreach (string item in SetRefTermValues)
             {
                 if (!string.IsNullOrEmpty(item))
@@ -152,8 +152,8 @@ namespace AddressBookUnitTest.DbContext
                 }
             }
 
-
-            FileStream dummyImg = File.OpenRead(@"F:\work\project\training\Address Book\AddressBookUnitTest\data\files\response.jpeg");
+            string imagePath = Path.Combine(baseDir, @"..\..\..\data\files\response.jpeg");
+            FileStream dummyImg = File.OpenRead(Path.GetFullPath(imagePath));
             MemoryStream ms = new MemoryStream();
             dummyImg.CopyToAsync(ms);
             byte[] byteArray = ms.ToArray();

@@ -13,7 +13,7 @@ namespace AddressBook.Contracts
         ///</summary>
         ///<param name="authId"></param>
         ///<param name="user"></param>
-        Guid CreateUser(CreateUserDto user,Guid authId);
+        Guid CreateUser(User user,Guid authId);
 
         ///<summary>
         ///get all address book based on filter
@@ -37,7 +37,7 @@ namespace AddressBook.Contracts
         ///delete address book in database
         ///</summary>
         ///<param name="user"></param>
-        void DeleteAddressBook(User user);
+        void DeleteAddressBook(Guid userId);
 
         ///<summary>
         ///get user by user id
@@ -59,13 +59,13 @@ namespace AddressBook.Contracts
         ///<param name="userId"></param>
         ///<param name="userFromRepo"></param>
         ///<param name="userInput"></param>
-        void UpdateAddressBook(Guid userId, UpdateUserDto userInput, User userFromRepo,Guid authId);
+        void UpdateAddressBook(Guid userId, User userInput, User userFromRepo,Guid authId);
 
         ///<summary>
         ///validate user input in create user 
         ///</summary>
         ///<param name="user"></param>
-        CreateUserDto FetchUserDetailsForCreate(CreateUserDto user, Guid authId);
+        User FetchUserDetailsForCreate(CreateUserDto user, Guid authId);
 
         ///<summary>
         ///validate user input in update user 
@@ -86,7 +86,7 @@ namespace AddressBook.Contracts
         ///</summary>
         ///<param name="user"></param>
         ///<param name="authId"></param>
-        UpdateUserDto FetchUserDetailsForUpdate(UpdateUserDto user, Guid authId);
+        User FetchUserDetailsForUpdate(UpdateUserDto user, Guid authId);
 
        
     }

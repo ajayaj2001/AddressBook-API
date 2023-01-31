@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AddressBook.Entities.Dtos
 {
-    public class CreateUserDto : BaseDto
+    public class CreateUserDto
     {
         ///<summary>
         ///first name of user

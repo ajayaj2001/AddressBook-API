@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AddressBook.Entities.Dtos
 {
-    public class CreatePhoneNumberDto : BaseDto
+    public class CreatePhoneNumberDto
     {
         ///<summary>
         ///phone number of user

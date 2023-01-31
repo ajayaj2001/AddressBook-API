@@ -84,7 +84,7 @@ namespace AddressBook.Controllers
 
             MemoryStream outputStream = new MemoryStream(Convert.FromBase64String(Image64.File));
             byte[] bytesInStream = outputStream.ToArray();
-            _logger.LogInformation("image downloaded successfully");
+            _logger.LogInformation("image downloaded");
             return File(bytesInStream, "APPLICATION/octnet-stream");
         }
     }

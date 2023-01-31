@@ -4,7 +4,7 @@ using System;
 
 namespace AddressBook.Entities.Dtos
 {
-    public class UpdatePhoneNumberDto : BaseDto
+    public class UpdatePhoneNumberDto
     {
 
         ///<summary>

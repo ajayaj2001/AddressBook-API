@@ -58,8 +58,8 @@ namespace AddressBook.Controllers
             }
             else
             {
-                CreateUserDto updatedUser = _userServices.FetchUserDetailsForCreate(user,authId);
-                _logger.LogInformation("new user created successfully");
+                User updatedUser = _userServices.FetchUserDetailsForCreate(user,authId);
+                _logger.LogInformation("User created successfully");
                 return Ok(_userServices.CreateUser(updatedUser, authId));
             }
         }
@@ -97,7 +97,7 @@ namespace AddressBook.Controllers
                 _logger.LogError("User Not Found");
                 return NotFound(new ErrorResponse { errorCode=404,errorMessage= "User Not Found",errorType="get-users" });
             }
-            _logger.LogInformation("returned all address book");
+            _logger.LogInformation("Returned all address book");
             return Ok(_userServices.FetchAddressBookDetail(users));
         }
 
@@ -118,7 +118,7 @@ namespace AddressBook.Controllers
         public IActionResult GetAddressBookCount()
         {
             int count = _userServices.GetAllUsers().Count();
-            _logger.LogInformation("returned address book count");
+            _logger.LogInformation("Returned address book count");
             return Ok(new CountSuccessResponse() { count = count });
         }
 
@@ -143,10 +143,10 @@ namespace AddressBook.Controllers
             User foundUser = _userServices.GetUserById(id);
             if (foundUser == null)
             {
-                _logger.LogError("user not found");
+                _logger.LogError("User not found");
                 return NotFound(new ErrorResponse { errorCode=404,errorMessage="user not found",errorType="get-addressbook"});
             }
-            _logger.LogInformation("returned individual address book ");
+            _logger.LogInformation("Returned individual address book ");
             return Ok(_userServices.FetchSingleAddressBookDetail(foundUser));
         }
 
@@ -171,12 +171,12 @@ namespace AddressBook.Controllers
             User userFromRepo = _userServices.GetUserById(id);
             if (userFromRepo == null)
             {
-                _logger.LogError("user not found");
+                _logger.LogError("User not found");
                 return NotFound(new ErrorResponse { errorCode=404,errorMessage="user not found",errorType="delete-addressbook"});
             }
-            _userServices.DeleteAddressBook(userFromRepo);
-            _logger.LogInformation("Address book deleted successfully");
-            return Ok("Address book deleted successfully");
+            _userServices.DeleteAddressBook(id);//fetch in service
+            _logger.LogInformation("Address book deleted");
+            return Ok("Address book deleted");
         }
 
         ///<summary> 
@@ -206,7 +206,7 @@ namespace AddressBook.Controllers
             User userFromRepo = _userServices.GetUserById(id);
             if (userFromRepo == null)
             {
-                _logger.LogError("user not found");
+                _logger.LogError("User not found");
                 return NotFound();
             }
 
@@ -221,9 +221,9 @@ namespace AddressBook.Controllers
             }
             else
             {
-                UpdateUserDto updatedUser = _userServices.FetchUserDetailsForUpdate(user, authId);
+                User updatedUser = _userServices.FetchUserDetailsForUpdate(user, authId);
                 _userServices.UpdateAddressBook(id, updatedUser, userFromRepo, authId);
-                _logger.LogInformation("Addresstype updated successfully");
+                _logger.LogInformation("Address type updated");
                 return Ok("updated");
             }
         }

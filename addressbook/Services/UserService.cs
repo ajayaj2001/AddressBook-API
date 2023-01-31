@@ -30,15 +30,14 @@ namespace AddressBook.Services
         ///</summary>
         ///<param name="authId"></param>
         ///<param name="user"></param>
-        public Guid CreateUser(CreateUserDto user, Guid authId)
+        public Guid CreateUser(User user, Guid authId)
         {
-            User userResult = _mapper.Map<User>(user);
-            userResult.CreatedAt = DateTime.Now.ToString();
-            userResult.CreatedBy = authId;
-            _userRepository.CreateUser(userResult);
+            user.CreatedAt = DateTime.Now.ToString();
+            user.CreatedBy = authId;
+            _userRepository.CreateUser(user);
             _userRepository.Save();
 
-            UserDto userDetail = _mapper.Map<UserDto>(userResult);
+            UserDto userDetail = _mapper.Map<UserDto>(user);
             return userDetail.Id;
         }
 
@@ -104,9 +103,10 @@ namespace AddressBook.Services
         ///delete address book in database
         ///</summary>
         ///<param name="user"></param>
-        public void DeleteAddressBook(User user)
+        public void DeleteAddressBook(Guid userId)
         {
-            _userRepository.DeleteUser(user);
+            User userFromRepo = _userRepository.GetUserById(userId);
+            _userRepository.DeleteUser(userFromRepo);
             _userRepository.Save();
         }
 
@@ -117,7 +117,7 @@ namespace AddressBook.Services
         ///<param name="userId"></param>
         ///<param name="userFromRepo"></param>
         ///<param name="userInput"></param>
-        public void UpdateAddressBook(Guid userId, UpdateUserDto userInput, User userFromRepo, Guid authId)
+        public void UpdateAddressBook(Guid userId, User userInput, User userFromRepo, Guid authId)
         {
             List<Email> emailCollection = _userRepository.GetEmailIds(userId).ToList();
             List<Phone> phCollection = _userRepository.GetPhoneIds(userId).ToList();
@@ -156,39 +156,39 @@ namespace AddressBook.Services
             {
                 if (_userRepository.IsEmailExist(item.EmailAddress))
                 {
-                    _logger.LogError("Email is already exist");
+                    _logger.LogError("Email already exist");
                     return new ValidateInputResponse() { errorMessage = "Email is already exist", errorCode = 409 };
                 }
                 if (!_userRepository.IsMetadataExist(item.Type))
                 {
-                    _logger.LogError("Email type is not exist");
+                    _logger.LogError("Email type not exist");
                     return new ValidateInputResponse() { errorMessage = "Email type is not exist", errorCode = 404 };
                 }
             }
             if (user.Emails.GroupBy(x => x.EmailAddress).Any(g => g.Count() > 1))
             {
-                _logger.LogError("Dont enter same email multiple time");
-                return new ValidateInputResponse() { errorMessage = "Dont enter same email multiple time", errorCode = 409 };
+                _logger.LogError("email already exist");
+                return new ValidateInputResponse() { errorMessage = "email already exist", errorCode = 409 };
             }
 
             foreach (CreatePhoneNumberDto item in user.Phones)
             {
                 if (!_userRepository.IsMetadataExist(item.Type))
                 {
-                    _logger.LogError("Phone number type is not exist");
-                    return new ValidateInputResponse() { errorMessage = "Phone number type is not exist", errorCode = 404 };
+                    _logger.LogError("Phone number type not exist");
+                    return new ValidateInputResponse() { errorMessage = "Phone number type not exist", errorCode = 404 };
                 }
 
                 if (_userRepository.IsPhoneExist(item.PhoneNumber))
                 {
-                    _logger.LogError("Phone number is already exist");
-                    return new ValidateInputResponse() { errorMessage = "phone number is already exist", errorCode = 409 };
+                    _logger.LogError("Phone number already exist");
+                    return new ValidateInputResponse() { errorMessage = "phone number already exist", errorCode = 409 };
                 }
             }
             if (user.Phones.GroupBy(x => x.PhoneNumber).Any(g => g.Count() > 1))
             {
-                _logger.LogError("dont enter same ph number multiple time");
-                return new ValidateInputResponse() { errorMessage = "Dont enter same phone number multiple time", errorCode = 409 };
+                _logger.LogError("Phone number already exist");
+                return new ValidateInputResponse() { errorMessage = "Phone number already exist", errorCode = 409 };
             }
 
             //check address & type
@@ -196,14 +196,14 @@ namespace AddressBook.Services
             {
                 if (!_userRepository.IsMetadataExist(item.Country))
                 {
-                    _logger.LogError($"Countrytype is not exist{item.Country}");
-                    return new ValidateInputResponse() { errorMessage = "country type is not exist", errorCode = 404 };
+                    _logger.LogError($"Country type not exist{item.Country}");
+                    return new ValidateInputResponse() { errorMessage = "country type not exist", errorCode = 404 };
                 }
 
                 if (!_userRepository.IsMetadataExist(item.Type))
                 {
-                    _logger.LogError("Addresstype is not exist");
-                    return new ValidateInputResponse() { errorMessage = "Addresstype is not exist", errorCode = 404 };
+                    _logger.LogError("Addresstype not exist");
+                    return new ValidateInputResponse() { errorMessage = "Address type not exist", errorCode = 404 };
                 }
             }
 
@@ -221,21 +221,21 @@ namespace AddressBook.Services
             {
                 if (!_userRepository.IsMetadataExist(item.Type))
                 {
-                    _logger.LogError("Email type is not exist");
-                    return new ValidateInputResponse() { errorMessage = "Phone number type is not exist", errorCode = 404 };
+                    _logger.LogError("Email type not exist");
+                    return new ValidateInputResponse() { errorMessage = "Phone number type not exist", errorCode = 404 };
                 }
 
                 if (_userRepository.IsEmailExistUpdate(item.EmailAddress, id))
                 {
-                    _logger.LogError("Email is already exist");
-                    return new ValidateInputResponse() { errorMessage = "Email is already exist", errorCode = 409 };
+                    _logger.LogError("Email already exist");
+                    return new ValidateInputResponse() { errorMessage = "Email already exist", errorCode = 409 };
                 }
             }
 
             if (user.Emails.GroupBy(x => x.EmailAddress).Any(g => g.Count() > 1))
             {
-                _logger.LogError("dont enter same email multiple time");
-                return new ValidateInputResponse() { errorMessage = "Email is already exist", errorCode = 409 };
+                _logger.LogError("Email already exist");
+                return new ValidateInputResponse() { errorMessage = "Email already exist", errorCode = 409 };
             }
 
             foreach (UpdatePhoneNumberDto item in user.Phones)
@@ -243,36 +243,36 @@ namespace AddressBook.Services
 
                 if (!_userRepository.IsMetadataExist(item.Type))
                 {
-                    _logger.LogError("Phone number type is not exist");
-                    return new ValidateInputResponse() { errorMessage = "Phone number type is not exist", errorCode = 404 };
+                    _logger.LogError("Phone number type not exist");
+                    return new ValidateInputResponse() { errorMessage = "Phone number type not exist", errorCode = 404 };
 
                 }
 
                 if (_userRepository.IsPhoneExistUpdate(item.PhoneNumber, id))
                 {
-                    _logger.LogError("Phone number is already exist");
-                    return new ValidateInputResponse() { errorMessage = "Phone number type is not exist", errorCode = 404 };
+                    _logger.LogError("Phone number already exist");
+                    return new ValidateInputResponse() { errorMessage = "Phone number type not exist", errorCode = 404 };
 
                 }
             }
 
             if (user.Phones.GroupBy(x => x.PhoneNumber).Any(g => g.Count() > 1))
             {
-                _logger.LogError("dont enter same ph number multiple time");
-                return new ValidateInputResponse() { errorMessage = "Email is already exist", errorCode = 409 };
+                _logger.LogError("phone number already exist");
+                return new ValidateInputResponse() { errorMessage = "phone number is already exist", errorCode = 409 };
             }
 
             foreach (UpdateAddressDto item in user.Addresses)
             {
                 if (!_userRepository.IsMetadataExist(item.Country))
                 {
-                    _logger.LogError($"Countrytype is not exist{item.Country}");
-                    return new ValidateInputResponse() { errorMessage = "country type is not exist", errorCode = 404 };
+                    _logger.LogError($"Country type not exist{item.Country}");
+                    return new ValidateInputResponse() { errorMessage = "country type not exist", errorCode = 404 };
                 }
                 if (!_userRepository.IsMetadataExist(item.Type))
                 {
-                    _logger.LogError("Addresstype is not exist");
-                    return new ValidateInputResponse() { errorMessage = "address type is not exist", errorCode = 404 };
+                    _logger.LogError("Address type not exist");
+                    return new ValidateInputResponse() { errorMessage = "address type not exist", errorCode = 404 };
                 }
             }
 
@@ -284,28 +284,38 @@ namespace AddressBook.Services
         ///</summary>
         ///<param name="user"></param>
         ///<param name="authId"></param>
-        public CreateUserDto FetchUserDetailsForCreate(CreateUserDto user, Guid authId)
+        public User FetchUserDetailsForCreate(CreateUserDto user, Guid authId)
         {
             foreach (CreateEmailDto item in user.Emails)
             {
-                item.CreatedAt = DateTime.Now.ToString();
-                item.CreatedBy = authId;
                 item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
             }
             foreach (CreatePhoneNumberDto item in user.Phones)
             {
-                item.CreatedAt = DateTime.Now.ToString();
-                item.CreatedBy = authId;
                 item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
             }
             foreach (CreateAddressDto item in user.Addresses)
             {
-                item.CreatedAt = DateTime.Now.ToString();
-                item.CreatedBy = authId;
                 item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
                 item.Country = (_userRepository.TypeFinder(item.Country)).Id.ToString();
             }
-            return user;
+            User userResult = _mapper.Map<User>(user);
+            foreach (Email item in userResult.Emails)
+            {
+                item.CreatedAt = DateTime.Now.ToString();
+                item.CreatedBy = authId;
+            }
+            foreach (Phone item in userResult.Phones)
+            {
+                item.CreatedAt = DateTime.Now.ToString();
+                item.CreatedBy = authId;
+            }
+            foreach (Address item in userResult.Addresses)
+            {
+                item.CreatedAt = DateTime.Now.ToString();
+                item.CreatedBy = authId;
+            }
+            return userResult;
         }
 
         ///<summary>
@@ -313,29 +323,40 @@ namespace AddressBook.Services
         ///</summary>
         ///<param name="user"></param>
         ///<param name="authId"></param>
-        public UpdateUserDto FetchUserDetailsForUpdate(UpdateUserDto user, Guid authId)
+        public User FetchUserDetailsForUpdate(UpdateUserDto user, Guid authId)
         {
             foreach (UpdateEmailDto item in user.Emails)
             {
                 item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
-                item.UpdatedAt = DateTime.Now.ToString();
-                item.UpdatedBy = authId;
             }
             foreach (UpdatePhoneNumberDto item in user.Phones)
             {
                 item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
-                item.UpdatedAt = DateTime.Now.ToString();
-                item.UpdatedBy = authId;
 
             }
             foreach (UpdateAddressDto item in user.Addresses)
             {
                 item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
                 item.Country = (_userRepository.TypeFinder(item.Country)).Id.ToString();
+            }
+            User userResult = _mapper.Map<User>(user);
+            foreach (Email item in userResult.Emails)
+            {
                 item.UpdatedAt = DateTime.Now.ToString();
                 item.UpdatedBy = authId;
             }
-            return user;
+            foreach (Phone item in userResult.Phones)
+            {
+                item.UpdatedAt = DateTime.Now.ToString();
+                item.UpdatedBy = authId;
+
+            }
+            foreach (Address item in userResult.Addresses)
+            {
+                item.UpdatedAt = DateTime.Now.ToString();
+                item.UpdatedBy = authId;
+            }
+            return userResult;
 
         }
 

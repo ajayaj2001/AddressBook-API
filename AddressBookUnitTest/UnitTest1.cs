@@ -48,7 +48,7 @@ namespace AddressBookUnitTest
              .AddJsonFile("appsettings.json")
              .Build();
 
-            using var services = new ServiceCollection()
+            using ServiceProvider services = new ServiceCollection()
                             .AddSingleton<Microsoft.Extensions.Configuration.IConfiguration>(_configuration)
                             // -> add your DI needs here
                             .BuildServiceProvider();
@@ -86,8 +86,8 @@ namespace AddressBookUnitTest
             _authController = new AuthController(_authService, _logger);
             _fileController = new FileController(_fileService, _logger);
 
-            var userId = "7cf56f52-1aab-4646-b090-d337aac18370";
-            var contextMock = new Mock<HttpContext>();
+            string userId = "7cf56f52-1aab-4646-b090-d337aac18370";
+            Mock<HttpContext> contextMock = new Mock<HttpContext>();
             contextMock.Setup(x => x.User).Returns(new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
                                         new Claim(ClaimTypes.NameIdentifier,userId)
                                         // other required and custom claims
@@ -145,11 +145,11 @@ namespace AddressBookUnitTest
         public void login_OkObjectResult()
         {
             LoginDetailsDto loginDetails = new LoginDetailsDto() { UserName = "Ajay Kumar", Password = "12345werWER@" };
-            var response1 = _authController.UserLogin(loginDetails);
+            IActionResult response1 = _authController.UserLogin(loginDetails);
             Assert.IsType<OkObjectResult>(response1);
 
             LoginDetailsDto loginDetails2 = new LoginDetailsDto() { UserName = "Ajaydd Kumar", Password = "12345werWER@" };
-            var response2 = _authController.UserLogin(loginDetails2);
+            IActionResult response2 = _authController.UserLogin(loginDetails2);
             Assert.IsType<UnauthorizedObjectResult>(response2);
         }
 
@@ -303,11 +303,11 @@ namespace AddressBookUnitTest
 
             string path = @"F:\work\project\training\Address Book\AddressBookUnitTest\data\files\response.jpeg";
             IFormFile File;
-            using (var stream = System.IO.File.OpenRead(path))
+            using (FileStream stream = System.IO.File.OpenRead(path))
             {
                 File = new FormFile(stream, 0, stream.Length, Path.GetFileName(stream.Name), Path.GetFileName(stream.Name));
 
-                var response = _fileController.UploadImage(userId, File);
+                ActionResult response = _fileController.UploadImage(userId, File);
                 Assert.IsType<OkObjectResult>(response);
             };
         }
@@ -319,11 +319,11 @@ namespace AddressBookUnitTest
         public void Download_FileContentResult()
         {
             Guid assetId = new Guid("876072b6-04e4-4577-b21c-946e96bef643");
-            var response = _fileController.DownloadImage(assetId);
+            IActionResult response = _fileController.DownloadImage(assetId);
             Assert.IsType<FileContentResult>(response);
 
             Guid assetId2 = new Guid("555072b6-04e4-4577-b21c-946e96bef643");
-            var response2 = _fileController.DownloadImage(assetId2);
+            IActionResult response2 = _fileController.DownloadImage(assetId2);
             Assert.IsType<NotFoundObjectResult>(response2);
         }
 

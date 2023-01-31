@@ -2,7 +2,7 @@
 
 namespace AddressBook.Entities.Dtos
 {
-    public class UpdateAddressDto : BaseDto
+    public class UpdateAddressDto
     {
         ///<summary>
         ///unique id of field

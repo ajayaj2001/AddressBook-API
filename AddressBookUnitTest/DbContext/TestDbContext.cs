@@ -17,9 +17,9 @@ namespace AddressBookUnitTest.DbContext
         /// <returns></returns>
         public static AddressBookContext addressBookDbContext()
         {
-            var options = new DbContextOptionsBuilder<AddressBookContext>()
+            DbContextOptions<AddressBookContext> options = new DbContextOptionsBuilder<AddressBookContext>()
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()).Options;
-            var context = new AddressBookContext(options);
+            AddressBookContext context = new AddressBookContext(options);
 
             return context;
         }

@@ -46,25 +46,25 @@ namespace AddressBook.Controllers
             //check username
             if (loginCredentials.UserName == null || loginCredentials.Password == null)
             {
-                _logger.LogError("user_name or password is Empty");
+                _logger.LogError("User name or password Empty");
                 return Unauthorized(new ErrorResponse { errorMessage = "user_name or password is Empty", errorCode = 401, errorType = "user-credientials" });
             }
             //is username exist
             User User = _authServices.GetUserByUserName(loginCredentials.UserName);
             if (User == null)
             {
-                _logger.LogError("userName not exist");
+                _logger.LogError("UserName not exist");
                 return Unauthorized(new ErrorResponse { errorMessage = "userName not exist", errorCode = 401, errorType = "user-credientials" });
             };
             //is password same
             bool check = _authServices.ComparePassword(User.Password, loginCredentials.Password);
             if (!check)
-            { _logger.LogError("wrong password");
+            { _logger.LogError("Wrong password");
                 return Unauthorized(new ErrorResponse { errorMessage = "wrong password", errorCode = 401, errorType = "user-credientials" });
             }
 
             string tokenString = _authServices.CreateJWTToken(User);
-            _logger.LogInformation("session created successfully");
+            _logger.LogInformation("Session created successfully");
             return Ok(new LoginSuccessResponse { access_token = tokenString, token_type = "Bearer" });
         }
 

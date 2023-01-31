@@ -2,7 +2,7 @@
 
 namespace AddressBook.Entities.Dtos
 {
-    public class CreateAssetDto : BaseDto
+    public class CreateAssetDto
     {
         ///<summary>
         ///user id who created asset

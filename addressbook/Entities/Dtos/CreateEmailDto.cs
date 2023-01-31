@@ -2,7 +2,7 @@
 
 namespace AddressBook.Entities.Dtos
 {
-    public class CreateEmailDto : BaseDto
+    public class CreateEmailDto
     {
         ///<summary>
         ///email address of user

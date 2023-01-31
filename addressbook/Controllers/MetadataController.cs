@@ -44,11 +44,11 @@ namespace AddressBook.Controllers
         public IActionResult FetchMetaData(string key)
         {
             ResultMetaData value = _metadataServices.FetchMetaData(key);
-            _logger.LogInformation("meta data returned successfully");
+            _logger.LogInformation("Meta data returned");
 
             if (value.Key == null)
             {
-                _logger.LogError("meta data not found");
+                _logger.LogError("Meta data not found");
                 return NotFound(new ErrorResponse { errorCode = 404, errorMessage = "meta data not found", errorType = "meta-data" });
             }
             return Ok(value);

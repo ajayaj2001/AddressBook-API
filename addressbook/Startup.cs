@@ -56,12 +56,12 @@ namespace AddressBook
                      setupAction.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                  });
 
-            var serviceProvider= services.BuildServiceProvider();
-            var loggerAddressBook = serviceProvider.GetService<ILogger<UserController>>();
-            var loggerAuth = serviceProvider.GetService<ILogger<AuthController>>();
-            var loggerFile = serviceProvider.GetService<ILogger<FileController>>();
-            var loggerMetaData = serviceProvider.GetService<ILogger<MetadataController>>();
-            var loggerService = serviceProvider.GetService<ILogger<UserService>>();
+            ServiceProvider serviceProvider= services.BuildServiceProvider();
+            ILogger<UserController> loggerAddressBook = serviceProvider.GetService<ILogger<UserController>>();
+            ILogger<AuthController> loggerAuth = serviceProvider.GetService<ILogger<AuthController>>();
+            ILogger<FileController> loggerFile = serviceProvider.GetService<ILogger<FileController>>();
+            ILogger<MetadataController> loggerMetaData = serviceProvider.GetService<ILogger<MetadataController>>();
+            ILogger<UserService> loggerService = serviceProvider.GetService<ILogger<UserService>>();
             services.AddSingleton(typeof(ILogger), loggerAddressBook);
             services.AddSingleton(typeof(ILogger), loggerAuth);
             services.AddSingleton(typeof(ILogger), loggerFile);
