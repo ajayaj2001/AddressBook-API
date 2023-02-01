@@ -42,18 +42,14 @@ namespace AddressBook.Helper
                   Math.Min(Param.PageNo * Param.Size, Result.TotalCount);
             }
 
-            if (Param.SortBy != null)
-            {
-                if (Param.SortOrder == SortDirection.ASC)
+                if (Param.SortOrder == "ASC")
                 {
-                    query = query.OrderBy(e => Param.SortBy.Equals("firstName")?e.FirstName:e.LastName).ToList();
-
+                    query = query.OrderBy(e => e.GetType().GetProperty(Param.SortBy).GetValue(e)).ToList();
                 }
                 else
                 {
-                    query = query.OrderByDescending(e => Param.SortBy.Equals("firstName") ? e.FirstName : e.LastName).ToList();
+                    query = query.OrderByDescending(e => e.GetType().GetProperty(Param.SortBy).GetValue(e)).ToList();
                 }
-            }
 
             List<User> list = query.Skip((Param.PageNo - 1) *
                            Param.Size).Take(Param.Size).ToList();

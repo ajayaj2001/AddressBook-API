@@ -4,14 +4,16 @@ using AddressBook.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AddressBook.Migrations
 {
     [DbContext(typeof(AddressBookContext))]
-    partial class AddressBookContextModelSnapshot : ModelSnapshot
+    [Migration("20230201072512_isactiveprop")]
+    partial class isactiveprop
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

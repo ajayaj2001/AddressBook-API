@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using AddressBook.Entities.Models;
 using AddressBook.Entities.ResponseTypes;
 
-namespace AddressBook.Contracts
+namespace AddressBook.Contracts.Services
 {
     public interface IUserService
     {
@@ -13,7 +13,7 @@ namespace AddressBook.Contracts
         ///</summary>
         ///<param name="authId"></param>
         ///<param name="user"></param>
-        Guid CreateUser(User user,Guid authId);
+        Guid CreateUser(User user, Guid authId);
 
         ///<summary>
         ///get all address book based on filter
@@ -59,7 +59,7 @@ namespace AddressBook.Contracts
         ///<param name="userId"></param>
         ///<param name="userFromRepo"></param>
         ///<param name="userInput"></param>
-        void UpdateAddressBook(Guid userId, User userInput, User userFromRepo,Guid authId);
+        void UpdateAddressBook(Guid userId, User userInput, User userFromRepo, Guid authId);
 
         ///<summary>
         ///validate user input in create user 
@@ -88,6 +88,6 @@ namespace AddressBook.Contracts
         ///<param name="authId"></param>
         User FetchUserDetailsForUpdate(UpdateUserDto user, Guid authId);
 
-       
+
     }
 }

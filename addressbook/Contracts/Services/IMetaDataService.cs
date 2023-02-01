@@ -1,7 +1,7 @@
 ﻿using AddressBook.Entities.Dtos;
 using System.Collections.Generic;
 
-namespace AddressBook.Contracts
+namespace AddressBook.Contracts.Services
 {
     public interface IMetaDataService
     {

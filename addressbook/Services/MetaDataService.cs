@@ -2,10 +2,10 @@
 using AddressBook.Entities.Models;
 using System.Collections.Generic;
 using System;
-using AddressBook.Contracts;
 using AutoMapper;
 using System.Linq;
-using AddressBook.Repositories;
+using AddressBook.Contracts.Services;
+using AddressBook.Contracts.Repositories;
 
 namespace AddressBook.Services
 {

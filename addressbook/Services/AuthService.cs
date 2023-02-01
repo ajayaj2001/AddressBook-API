@@ -1,12 +1,12 @@
-﻿using AddressBook.Contracts;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using System;
 using AddressBook.Entities.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using AddressBook.Repositories;
+using AddressBook.Contracts.Services;
+using AddressBook.Contracts.Repositories;
 
 namespace AddressBook.Services
 {
@@ -61,6 +61,7 @@ namespace AddressBook.Services
         public User GetUserByUserName(string userName)
         {
             return _authRepository.GetUserByUserName(userName);
+            
         }
 
     }

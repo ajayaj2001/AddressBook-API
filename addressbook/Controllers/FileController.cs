@@ -7,9 +7,9 @@ using System.IO;
 using AddressBook.Entities.ResponseTypes;
 using Swashbuckle.AspNetCore.Annotations;
 using AddressBook.Entities.Dtos;
-using AddressBook.Contracts;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using AddressBook.Contracts.Services;
 
 namespace AddressBook.Controllers
 {

@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using AddressBook.Entities.Dtos;
 using AddressBook.Entities.ResponseTypes;
 using Swashbuckle.AspNetCore.Annotations;
-using AddressBook.Contracts;
 using Microsoft.Extensions.Logging;
+using AddressBook.Contracts.Services;
 
 namespace AddressBook.Controllers
 {

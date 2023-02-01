@@ -1,4 +1,5 @@
-﻿using AddressBook.DbContexts;
+﻿using AddressBook.Contracts.Repositories;
+using AddressBook.DbContexts;
 using AddressBook.Entities.Models;
 using System;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace AddressBook.Repositories
         ///<param name="id"></param>
         public Asset RetriveImage(Guid id)
         {
-            Asset image = _context.Assets.Where(a=>a.Id==id).FirstOrDefault(); //(b => b.Id == id);
+            Asset image = _context.Assets.Where(a=>a.Id==id&&a.IsActive).FirstOrDefault(); //(b => b.Id == id);
             if (image == null)
                 return null;
 

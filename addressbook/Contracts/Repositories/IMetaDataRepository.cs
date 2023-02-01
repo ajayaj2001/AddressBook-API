@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System;
 
-namespace AddressBook.Repositories
+namespace AddressBook.Contracts.Repositories
 {
     public interface IMetaDataRepository
     {
@@ -10,13 +10,13 @@ namespace AddressBook.Repositories
         ///get ref set by id list
         ///</summary>
         ///<param name="items"></param>
-        
+
         IEnumerable<RefTerm> GetRefTerm(IEnumerable<Guid> items);
         //<summary>
         ///get all ref set group in db
         ///</summary>
         ///<param name="id"></param>
-    
+
         IEnumerable<Guid> GetRefTermGroup(Guid id);
 
         ///<summary>

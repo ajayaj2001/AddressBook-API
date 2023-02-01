@@ -1,6 +1,6 @@
 ﻿using AddressBook.Entities.Models;
 
-namespace AddressBook.Repositories
+namespace AddressBook.Contracts.Repositories
 {
     public interface IAuthRepository
     {

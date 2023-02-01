@@ -1,4 +1,5 @@
-﻿using AddressBook.DbContexts;
+﻿using AddressBook.Contracts.Repositories;
+using AddressBook.DbContexts;
 using AddressBook.Entities.Models;
 using System;
 using System.Linq;
@@ -20,8 +21,7 @@ namespace AddressBook.Repositories
         ///<param name="userName"></param>
         public User GetUserByUserName(string userName)
         {
-            User user = _context.Users.Where(a => a.UserName == userName).FirstOrDefault();
-
+            User user = _context.Users.Where(a => a.UserName == userName && a.IsActive).FirstOrDefault();
             return user;
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AddressBook.Contracts.Repositories;
 using AddressBook.DbContexts;
 using AddressBook.Entities.Models;
 
@@ -37,15 +38,6 @@ namespace AddressBook.Repositories
         }
 
         ///<summary>
-        ///delete user in db
-        ///</summary>
-        ///<param name="user"></param>
-        public void DeleteUser(User user)
-        {
-            _context.Users.Remove(user);
-        }
-
-        ///<summary>
         ///save all changes
         ///</summary>
         public bool Save()
@@ -59,7 +51,7 @@ namespace AddressBook.Repositories
         ///<param name="id"></param>
         public Guid GetImageIdByUserId(Guid id)
         {
-            return _context.Assets.Where(e => e.UserId == id).FirstOrDefault().Id;
+            return _context.Assets.Where(e => e.UserId == id && e.IsActive).FirstOrDefault().Id;
         }
 
         ///<summary>
@@ -68,7 +60,7 @@ namespace AddressBook.Repositories
         ///<param name="type"></param>
         public RefTerm TypeFinder(string type)
         {
-            return _context.RefTerm.FirstOrDefault(b => b.Key == type);
+            return _context.RefTerm.FirstOrDefault(b => b.Key == type && b.IsActive);
         }
 
         ///<summary>
@@ -77,7 +69,7 @@ namespace AddressBook.Repositories
         ///<param name="type"></param>
         public bool IsMetadataExist(string type)
         {
-            return _context.RefTerm.Any(a => a.Key == type);
+            return _context.RefTerm.Any(a => a.Key == type && a.IsActive);
         }
 
 
@@ -88,7 +80,7 @@ namespace AddressBook.Repositories
         ///<param name="email"></param>
         public bool IsEmailExist(string email)
         {
-            return _context.Emails.Any(e => e.EmailAddress == email);
+            return _context.Emails.Any(e => e.EmailAddress == email && e.IsActive);
         }
 
         ///<summary>
@@ -98,7 +90,7 @@ namespace AddressBook.Repositories
         ///<param name="userId"></param>
         public bool IsEmailExistUpdate(string email, Guid userId)
         {
-            return _context.Emails.Any(e => e.EmailAddress == email && e.UserId != userId);
+            return _context.Emails.Any(e => e.EmailAddress == email && e.UserId != userId && e.IsActive);
         }
 
         ///<summary>
@@ -106,7 +98,7 @@ namespace AddressBook.Repositories
         ///</summary>
         public IEnumerable<Email> GetAllEmails()
         {
-            return _context.Emails.ToList();
+            return _context.Emails.Where(a=>a.IsActive).ToList();
         }
 
         ///<summary>
@@ -115,7 +107,7 @@ namespace AddressBook.Repositories
         ///<param name="id"></param>
         public IEnumerable<Email> GetEmailIds(Guid id)
         {
-            return _context.Emails.Where(a => a.UserId == id);
+            return _context.Emails.Where(a => a.UserId == id && a.IsActive);
         }
 
 
@@ -126,7 +118,7 @@ namespace AddressBook.Repositories
         ///<param name="phNumber"></param>
         public bool IsPhoneExist(string phNumber)
         {
-            return _context.Phones.Any(e => e.PhoneNumber == phNumber);
+            return _context.Phones.Any(e => e.PhoneNumber == phNumber && e.IsActive);
         }
 
         ///<summary>
@@ -136,7 +128,7 @@ namespace AddressBook.Repositories
         ///<param name="userId"></param>
         public bool IsPhoneExistUpdate(string phNumber, Guid userId)
         {
-            return _context.Phones.Any(e => e.PhoneNumber == phNumber && e.UserId != userId);
+            return _context.Phones.Any(e => e.PhoneNumber == phNumber && e.UserId != userId && e.IsActive);
         }
 
         ///<summary>
@@ -145,7 +137,7 @@ namespace AddressBook.Repositories
         ///<param name="id"></param>
         public IEnumerable<Phone> GetPhoneIds(Guid id)
         {
-            return _context.Phones.Where(a => a.UserId == id);
+            return _context.Phones.Where(a => a.UserId == id && a.IsActive);
         }
 
 
@@ -156,7 +148,7 @@ namespace AddressBook.Repositories
         ///<param name="id"></param>
         public IEnumerable<Address> GetAddressIds(Guid id)
         {
-            return _context.Addresses.Where(a => a.UserId == id);
+            return _context.Addresses.Where(a => a.UserId == id && a.IsActive );
         }
 
 
@@ -168,14 +160,14 @@ namespace AddressBook.Repositories
         public User GetUserById(Guid id)
         {
 
-            return _context.Users.FirstOrDefault(b => b.Id == id);
+            return _context.Users.FirstOrDefault(b => b.Id == id && b.IsActive);
         }
         ///<summary>
         ///get all user from db
         ///</summary>
         public IEnumerable<User> GetAllUsers()
         {
-            return _context.Users.ToList();
+            return _context.Users.Where(a => a.IsActive).ToList();
         }
 
         ///<summary>
@@ -183,7 +175,7 @@ namespace AddressBook.Repositories
         ///</summary>
         public int GetCount()
         {
-            List<User> count = _context.Users.ToList();
+            List<User> count = _context.Users.Where(a=>a.IsActive).ToList();
             return count.Count;
         }
 
@@ -194,7 +186,7 @@ namespace AddressBook.Repositories
         public bool IsUserExits(Guid userId)
         {
 
-            return _context.Users.Any(a => a.Id == userId);
+            return _context.Users.Any(a => a.Id == userId && a.IsActive);
         }
 
         ///<summary>
@@ -203,7 +195,7 @@ namespace AddressBook.Repositories
         ///<param name="id"></param>
         public Asset GetAssetById(Guid id)
         {
-            return _context.Assets.Find(id);
+            return _context.Assets.FirstOrDefault(a=>a.UserId==id && a.IsActive);
         }
         ///<summary>
         ///get assets by ids
@@ -211,7 +203,7 @@ namespace AddressBook.Repositories
         ///<param name="id"></param>
         public IEnumerable<Asset> GetAssetIds(Guid id)
         {
-            IEnumerable<Asset> asset= _context.Assets.Where(a => a.UserId == id);
+            IEnumerable<Asset> asset = _context.Assets.Where(a => a.UserId == id && a.IsActive);
             if (asset == null)
                 throw new ArgumentNullException(nameof(asset));
 

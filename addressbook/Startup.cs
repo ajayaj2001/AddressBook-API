@@ -13,10 +13,11 @@ using AddressBook.Services;
 using AutoMapper;
 using System;
 using Newtonsoft.Json.Serialization;
-using AddressBook.Contracts;
 using AddressBook.Repositories;
 using AddressBook.Controllers;
 using Microsoft.Extensions.Logging;
+using AddressBook.Contracts.Services;
+using AddressBook.Contracts.Repositories;
 
 namespace AddressBook
 {

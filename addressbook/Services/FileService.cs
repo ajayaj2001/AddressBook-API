@@ -3,9 +3,9 @@ using AddressBook.Entities.Models;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System;
-using AddressBook.Contracts;
 using AutoMapper;
-using AddressBook.Repositories;
+using AddressBook.Contracts.Services;
+using AddressBook.Contracts.Repositories;
 
 namespace AddressBook.Services
 {

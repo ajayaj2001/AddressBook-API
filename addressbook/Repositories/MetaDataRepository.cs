@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using AddressBook.DbContexts;
 using System.Linq;
+using AddressBook.Contracts.Repositories;
 
 namespace AddressBook.Repositories
 {
@@ -40,7 +41,7 @@ namespace AddressBook.Repositories
         public IEnumerable<RefTerm> GetRefTerm(IEnumerable<Guid> items)
         {
 
-            return _context.RefTerm.Where(a => items.Contains(a.Id));
+            return _context.RefTerm.Where(a => items.Contains(a.Id) && a.IsActive);
         }
 
         ///<summary>
@@ -49,7 +50,7 @@ namespace AddressBook.Repositories
         ///<param name="name"></param>
         public RefSet GetRefSet(string name)
         {
-            return _context.RefSets.FirstOrDefault(a => a.Key == name);
+            return _context.RefSets.FirstOrDefault(a => a.Key == name && a.IsActive);
         }
 
 

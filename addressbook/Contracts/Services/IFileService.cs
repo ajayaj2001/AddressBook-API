@@ -3,7 +3,7 @@ using AddressBook.Entities.Models;
 using Microsoft.AspNetCore.Http;
 using System;
 
-namespace AddressBook.Contracts
+namespace AddressBook.Contracts.Services
 {
     public interface IFileService
     {

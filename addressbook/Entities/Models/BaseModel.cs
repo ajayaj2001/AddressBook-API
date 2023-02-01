@@ -31,6 +31,11 @@ namespace AddressBook.Entities.Models
         ///</summary>
         public Guid UpdatedBy { get; set; }
 
+        ///<summary>
+        /// is deleted 
+        ///</summary>
+        public Boolean IsActive { get; set; }=true;
+
 
     }
 }

@@ -5,10 +5,10 @@ using AutoMapper;
 using System.Collections.Generic;
 using System.Linq;
 using AddressBook.Helper;
-using AddressBook.Contracts;
 using AddressBook.Entities.ResponseTypes;
 using Microsoft.Extensions.Logging;
-using AddressBook.Repositories;
+using AddressBook.Contracts.Services;
+using AddressBook.Contracts.Repositories;
 
 namespace AddressBook.Services
 {
@@ -106,7 +106,7 @@ namespace AddressBook.Services
         public void DeleteAddressBook(Guid userId)
         {
             User userFromRepo = _userRepository.GetUserById(userId);
-            _userRepository.DeleteUser(userFromRepo);
+            userFromRepo.IsActive = false;
             _userRepository.Save();
         }
 
@@ -332,7 +332,6 @@ namespace AddressBook.Services
             foreach (UpdatePhoneNumberDto item in user.Phones)
             {
                 item.Type = (_userRepository.TypeFinder(item.Type)).Id.ToString();
-
             }
             foreach (UpdateAddressDto item in user.Addresses)
             {
@@ -349,7 +348,6 @@ namespace AddressBook.Services
             {
                 item.UpdatedAt = DateTime.Now.ToString();
                 item.UpdatedBy = authId;
-
             }
             foreach (Address item in userResult.Addresses)
             {
@@ -357,9 +355,6 @@ namespace AddressBook.Services
                 item.UpdatedBy = authId;
             }
             return userResult;
-
         }
-
-
     }
 }

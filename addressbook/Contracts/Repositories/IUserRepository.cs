@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AddressBook.Repositories
+namespace AddressBook.Contracts.Repositories
 {
     public interface IUserRepository
     {
@@ -29,13 +29,6 @@ namespace AddressBook.Repositories
         ///</summary>
         ///<param name="user"></param>
         void UpdateUser(User user);
-
-
-        ///<summary>
-        ///delete user in db
-        ///</summary>
-        ///<param name="user"></param>
-        void DeleteUser(User user);
 
         ///<summary>
         ///get user by user id

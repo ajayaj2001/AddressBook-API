@@ -5,27 +5,21 @@
         ///<summary>
         ///count of addressbook to display
         ///</summary>
-        public int Size { get; set; } = 10;  //default page size
+        public int Size { get; set; }
 
         ///<summary>
         ///page number of display all address book
         ///</summary>
-        public int PageNo { get; set; } = 1;
+        public int PageNo { get; set; }
 
         ///<summary>
         ///sort by which field
         ///</summary>
-        public string SortBy { get; set; } = null;
+        public string SortBy { get; set; }
 
         ///<summary>
         ///sort in which direction asc or desc
         ///</summary>
-        public SortDirection SortOrder { get; set; }
-    }
-
-    public enum SortDirection
-    {
-        ASC = 0,   //default as ascending
-        DESC
+        public string SortOrder { get; set; }
     }
 }

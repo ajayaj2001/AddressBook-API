@@ -7,9 +7,9 @@ using AddressBook.Entities.Models;
 using AddressBook.Entities.Dtos;
 using AddressBook.Entities.ResponseTypes;
 using Swashbuckle.AspNetCore.Annotations;
-using AddressBook.Contracts;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using AddressBook.Contracts.Services;
 
 namespace AddressBook.Controllers
 {
@@ -83,19 +83,19 @@ namespace AddressBook.Controllers
         [SwaggerResponse(401, "Unauthorized", typeof(ErrorResponse))]
         [SwaggerResponse(404, "Not Found", typeof(ErrorResponse))]
         [SwaggerResponse(500, "Internal server error", typeof(ErrorResponse))]
-        public IActionResult GetAllAddressBook(int size=10, [FromQuery(Name = "page-no")] int pageNo=1, [FromQuery(Name = "sort-by")] string sortBy="", [FromQuery(Name = "sort-order")] string sortOrder="")
+        public IActionResult GetAllAddressBook(int size=10, [FromQuery(Name = "page-no")] int pageNo=1, [FromQuery(Name = "sort-by")] string sortBy= "FirstName", [FromQuery(Name = "sort-order")] string sortOrder="ASC")
         {
-            PageSortParam pageSortParam = new PageSortParam() { Size=size,PageNo=pageNo,SortBy=sortBy };
-            if (sortOrder == "ASC")
-                pageSortParam.SortOrder = SortDirection.ASC;
-            else if (sortOrder == "DESC")
-                pageSortParam.SortOrder = SortDirection.DESC;
-            
-                List<User> users = _userServices.GetAllAddressBook(pageSortParam);
+            if(!(sortBy == "FirstName" || sortBy == "LastName" || sortBy == "UserName"))
+            {
+                _logger.LogError("SortBy value Not Found");
+                return NotFound(new ErrorResponse { errorCode = 404, errorMessage = "SortBy value Not Found", errorType = "get-users" });
+            }
+            PageSortParam pageSortParam = new PageSortParam() { Size=size,PageNo=pageNo,SortBy=sortBy,SortOrder=sortOrder };
+            List<User> users = _userServices.GetAllAddressBook(pageSortParam);
             if (users == null)
             {
-                _logger.LogError("User Not Found");
-                return NotFound(new ErrorResponse { errorCode=404,errorMessage= "User Not Found",errorType="get-users" });
+                _logger.LogError("No AddressBook Found");
+                return NotFound(new ErrorResponse { errorCode=404,errorMessage= "No AddressBook Found", errorType="get-users" });
             }
             _logger.LogInformation("Returned all address book");
             return Ok(_userServices.FetchAddressBookDetail(users));

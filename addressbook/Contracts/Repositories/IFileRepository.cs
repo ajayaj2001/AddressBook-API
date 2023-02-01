@@ -1,7 +1,7 @@
 ﻿using AddressBook.Entities.Models;
 using System;
 
-namespace AddressBook.Repositories
+namespace AddressBook.Contracts.Repositories
 {
     public interface IFileRepository
     {

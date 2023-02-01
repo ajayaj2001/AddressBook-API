@@ -1,4 +1,3 @@
-using AddressBook.Contracts;
 using AddressBook.Controllers;
 using AddressBook.DbContexts;
 using AddressBook.Entities.Dtos;
@@ -17,10 +16,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Xunit;
-using System.Linq;
 using AddressBookUnitTest.DbContext;
 using Moq;
 using System.Security.Claims;
+using AddressBook.Contracts.Services;
 
 namespace AddressBookUnitTest
 {
@@ -120,7 +119,14 @@ namespace AddressBookUnitTest
             Assert.IsType<OkObjectResult>(response1);
             OkObjectResult item = response1 as OkObjectResult;
             Assert.IsType<UserDto>(item.Value);
+        }
 
+        /// <summary>
+        ///   To test get address book using non existing user id
+        /// </summary>
+        [Fact]
+        public void GetAddressBookById_NotFoundObjectResult()
+        {
             Guid userId2 = Guid.Parse("5fad8d04-6126-47f8-bac7-409c0cee5466");
             ActionResult response2 = _addresBookController.GetAddressBookById(userId2) as ActionResult;
             Assert.IsType<NotFoundObjectResult>(response2);
@@ -139,6 +145,16 @@ namespace AddressBookUnitTest
         }
 
         /// <summary>
+        ///  To test the get all address book by non existing field
+        /// </summary>
+        [Fact]
+        public void GetAllAddress_NotFoundObjectResult()
+        {
+            ActionResult response1 = _addresBookController.GetAllAddressBook(10, 1,"email") as ActionResult;
+            Assert.IsType<NotFoundObjectResult>(response1);
+        }
+
+        /// <summary>
         ///  To test the login user
         /// </summary>
         [Fact]
@@ -147,7 +163,14 @@ namespace AddressBookUnitTest
             LoginDetailsDto loginDetails = new LoginDetailsDto() { UserName = "Ajay Kumar", Password = "12345werWER@" };
             IActionResult response1 = _authController.UserLogin(loginDetails);
             Assert.IsType<OkObjectResult>(response1);
+        }
 
+        /// <summary>
+        ///  To test the login user by invalid data
+        /// </summary>
+        [Fact]
+        public void login_UnauthorizedObjectResult()
+        {
             LoginDetailsDto loginDetails2 = new LoginDetailsDto() { UserName = "Ajaydd Kumar", Password = "12345werWER@" };
             IActionResult response2 = _authController.UserLogin(loginDetails2);
             Assert.IsType<UnauthorizedObjectResult>(response2);
@@ -157,10 +180,8 @@ namespace AddressBookUnitTest
         ///   To test the create method in the user
         /// </summary>
         [Fact]
-        public void Create_AddressBook_ReturnOkResponses()
+        public void Create_AddressBook_OkResponses()
         {
-
-
             CreateUserDto user = new CreateUserDto()
             {
                 FirstName = "pradeep",
@@ -192,28 +213,92 @@ namespace AddressBookUnitTest
                 Type = "PERSONAL"
             });
 
-
-
             ActionResult<string> account = _addresBookController.CreateAddressBook(user);
             Assert.IsType<OkObjectResult>(account.Result);
-
-            // If the email or phone number is already exist
-            user.Emails.First().EmailAddress = "ajay@gmail.com";
-            user.Emails.First().Type = "PERSONAL";
-            user.Phones.First().Type = "PERSONAL";
-            user.Addresses.First().Type = "PERSONAL";
-            user.Addresses.First().Country = "INDIA";
-            account = _addresBookController.CreateAddressBook(user);
-            Assert.IsType<ConflictObjectResult>(account.Result);
-
-            //If the RefTerm Not Found
-            user.Emails.First().EmailAddress = "ajay@gmail.com";
-            user.Phones.First().PhoneNumber = "2345678999";
-            user.Addresses.First().Type = "alternative";
-            account = _addresBookController.CreateAddressBook(user);
-            Assert.IsType<NotFoundObjectResult>(account.Result);
         }
 
+
+        /// <summary>
+        ///   To test the create method using existing email
+        /// </summary>
+        [Fact]
+        public void Create_AddressBook_ConflictObjectResult()
+        {
+            CreateUserDto user = new CreateUserDto()
+            {
+                FirstName = "pradeep",
+                LastName = "kumar",
+                UserName = "pradeep kumar",
+                Password = "pradeeeP@77",
+                Addresses = new List<CreateAddressDto>(),
+                Emails = new List<CreateEmailDto>(),
+                Phones = new List<CreatePhoneNumberDto>(),
+            };
+            user.Addresses.Add(new CreateAddressDto()
+            {
+                Line1 = "24 seval",
+                Line2 = "nandavanam",
+                City = "dindigul",
+                Zipcode = "123123",
+                StateName = "tamil nadu",
+                Type = "PERSONAL",
+                Country = "INDIA"
+            });
+            user.Emails.Add(new CreateEmailDto()
+            {
+                EmailAddress = "admin@ajay.live",
+                Type = "PERSONAL"
+            });
+            user.Phones.Add(new CreatePhoneNumberDto()
+            {
+                PhoneNumber = "8189900490",
+                Type = "PERSONAL"
+            });
+
+            ActionResult<string> account = _addresBookController.CreateAddressBook(user);
+            Assert.IsType<ConflictObjectResult>(account.Result);
+        }
+
+        /// <summary>
+        ///   To test the create method using non existing type
+        /// </summary>
+        [Fact]
+        public void Create_AddressBook_NotFoundObjectResult()
+        {
+            CreateUserDto user = new CreateUserDto()
+            {
+                FirstName = "pradeep",
+                LastName = "kumar",
+                UserName = "pradeep kumar",
+                Password = "pradeeeP@77",
+                Addresses = new List<CreateAddressDto>(),
+                Emails = new List<CreateEmailDto>(),
+                Phones = new List<CreatePhoneNumberDto>(),
+            };
+            user.Addresses.Add(new CreateAddressDto()
+            {
+                Line1 = "24 seval",
+                Line2 = "nandavanam",
+                City = "dindigul",
+                Zipcode = "123123",
+                StateName = "tamil nadu",
+                Type = "PERSONAL",
+                Country = "INDIA"
+            });
+            user.Emails.Add(new CreateEmailDto()
+            {
+                EmailAddress = "ajay@gmail.com",
+                Type = "PERSONAL"
+            });
+            user.Phones.Add(new CreatePhoneNumberDto()
+            {
+                PhoneNumber = "2345678999",
+                Type = "alternative"
+            });
+
+            ActionResult<string> account = _addresBookController.CreateAddressBook(user);
+            Assert.IsType<NotFoundObjectResult>(account.Result);
+        }
 
         /// <summary>
         ///   To test the update method in the user
@@ -253,25 +338,85 @@ namespace AddressBookUnitTest
             Guid userId = Guid.Parse("5fad8d04-6126-47f8-bac7-409c0cee5425");
             ActionResult<string> account = _addresBookController.UpdateAddressBook(userId, user);
             Assert.IsType<OkObjectResult>(account.Result);
-
-            //If the RefTerm Not Found
-            user.Emails.First().EmailAddress = "ajay@gmail.com";
-            user.Phones.First().PhoneNumber = "2345678999";
-            user.Addresses.First().Type = "alternative";
-            account = _addresBookController.UpdateAddressBook(Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"), user);
-            Assert.IsType<NotFoundObjectResult>(account.Result);
-
-            // If the email or phone number is already exist
-            user.Emails.First().EmailAddress = "admin2@ajay.live";
-            user.Emails.First().Type = "PERSONAL";
-            user.Phones.First().Type = "PERSONAL";
-            user.Addresses.First().Type = "PERSONAL";
-            user.Addresses.First().Country = "INDIA";
-            account = _addresBookController.UpdateAddressBook(Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"), user);
-            Assert.IsType<ConflictObjectResult>(account.Result);
         }
 
+        /// <summary>
+        ///   To test the update method with non existing type
+        /// </summary>
+        [Fact]
+        public void Update_AddressBook_NotFoundObjectResponses()
+        {
+            UpdateUserDto user = new UpdateUserDto()
+            {
+                FirstName = "Ram",
+                LastName = "kumar",
+                Addresses = new List<UpdateAddressDto>(),
+                Emails = new List<UpdateEmailDto>(),
+                Phones = new List<UpdatePhoneNumberDto>(),
+            };
+            user.Addresses.Add(new UpdateAddressDto()
+            {
+                Line1 = "anna nagar",
+                Line2 = "aruppukottai",
+                City = "virudhunagar",
+                Zipcode = "626101",
+                StateName = "tamil nadu",
+                Type = "PERSONAL",
+                Country = "INDIA"
+            });
+            user.Emails.Add(new UpdateEmailDto()
+            {
+                EmailAddress = "ajay@gmail.com",
+                Type = "PERSONAL"
+            });
+            user.Phones.Add(new UpdatePhoneNumberDto()
+            {
+                PhoneNumber = "2345678999",
+                Type = "alternative"
+            });
+            //If the RefTerm Not Found
+            ActionResult<string> account = _addresBookController.UpdateAddressBook(Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"), user);
+            Assert.IsType<NotFoundObjectResult>(account.Result);
+        }
 
+        /// <summary>
+        ///   To test the update method with existing email
+        /// </summary>
+        [Fact]
+        public void Update_AddressBook_ConflitObjectResult()
+        {
+            UpdateUserDto user = new UpdateUserDto()
+            {
+                FirstName = "Ram",
+                LastName = "kumar",
+                Addresses = new List<UpdateAddressDto>(),
+                Emails = new List<UpdateEmailDto>(),
+                Phones = new List<UpdatePhoneNumberDto>(),
+            };
+            user.Addresses.Add(new UpdateAddressDto()
+            {
+                Line1 = "anna nagar",
+                Line2 = "aruppukottai",
+                City = "virudhunagar",
+                Zipcode = "626101",
+                StateName = "tamil nadu",
+                Type = "PERSONAL",
+                Country = "INDIA"
+            });
+            user.Emails.Add(new UpdateEmailDto()
+            {
+                EmailAddress = "admin2@ajay.live",
+                Type = "PERSONAL"
+            });
+            user.Phones.Add(new UpdatePhoneNumberDto()
+            {
+                PhoneNumber = "8189900410",
+                Type = "PERSONAL"
+            });
+            // If the email or phone number is already exist
+           ActionResult<string> account = _addresBookController.UpdateAddressBook(Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370"), user);
+            Assert.IsType<ConflictObjectResult>(account.Result);
+        }
 
         /// <summary>
         ///  To test the meta data type
@@ -286,7 +431,14 @@ namespace AddressBookUnitTest
             OkObjectResult item = response as OkObjectResult;
             ResultMetaData list = item.Value as ResultMetaData;
             Assert.Equal("PERSONAL", list.RefTermList[0].Key);
+        }
 
+        /// <summary>
+        ///  To test the meta data type using non existing type
+        /// </summary>
+        [Fact]
+        public void MetaData_NotFoundObjectResult()
+        {
             string key2 = "NAME_TYPE";
             ActionResult response2 = _metaDataController.FetchMetaData(key2) as ActionResult;
             Assert.IsType<NotFoundObjectResult>(response2);
@@ -316,12 +468,19 @@ namespace AddressBookUnitTest
         ///  To test the download image
         /// </summary>
         [Fact]
-        public void Download_FileContentResult()
+        public void DownloadFile_ContentResult()
         {
             Guid assetId = new Guid("876072b6-04e4-4577-b21c-946e96bef643");
             IActionResult response = _fileController.DownloadImage(assetId);
             Assert.IsType<FileContentResult>(response);
+        }
 
+        // <summary>
+        ///  To test the download image using non existing image id
+        /// </summary>
+        [Fact]
+        public void DownloadFile_NotFoundObjectResult()
+        {
             Guid assetId2 = new Guid("555072b6-04e4-4577-b21c-946e96bef643");
             IActionResult response2 = _fileController.DownloadImage(assetId2);
             Assert.IsType<NotFoundObjectResult>(response2);
@@ -331,7 +490,6 @@ namespace AddressBookUnitTest
         /// <summary>
         ///  To test the delete address book
         /// </summary>
-
         [Fact]
         public void deleteAddressBook_OkObjectResult()
         {
@@ -340,8 +498,15 @@ namespace AddressBookUnitTest
             Assert.IsType<OkObjectResult>(response1);
             OkObjectResult item = response1 as OkObjectResult;
             Assert.IsType<string>(item.Value);
+        }
 
-            Guid userId2 = Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18370");
+        /// <summary>
+        ///  To test the delete address book using non existing id
+        /// </summary>
+        [Fact]
+        public void deleteAddressBook_NotFoundObjectResult()
+        {
+            Guid userId2 = Guid.Parse("7cf56f52-1aab-4646-b090-d337aac18355");
             ActionResult response2 = _addresBookController.DeleteAddressBook(userId2) as ActionResult;
             Assert.IsType<NotFoundObjectResult>(response2);
         }
